@@ -628,7 +628,8 @@ STRESS TEST: HTML comment vs Django comment
 (document
   (comment)
   (django_line_comment)
-  (django_block_comment)
+  (django_block_comment
+    (comment_content))
   (element
     (normal_element
       (tag_name)

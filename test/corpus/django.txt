@@ -61,7 +61,8 @@ ignored content {{ var }}
 --------------------------------------------------------------------------------
 
 (document
-  (django_block_comment))
+  (django_block_comment
+    (comment_content)))
 
 ================================================================================
 Django if statement
@@ -1034,7 +1035,8 @@ Django block comment hides tags
 --------------------------------------------------------------------------------
 
 (document
-  (django_block_comment))
+  (django_block_comment
+    (comment_content)))
 
 ================================================================================
 Django block comment hides variables
@@ -1046,7 +1048,8 @@ foo{% comment %}{{ x }}{% endcomment %}bar
 
 (document
   (text)
-  (django_block_comment)
+  (django_block_comment
+    (comment_content))
   (text))
 
 ================================================================================
@@ -1300,7 +1303,8 @@ Django block comment with note
 
 (document
   (django_block_comment
-    (comment_text)))
+    (comment_text)
+    (comment_content)))
 
 ================================================================================
 Django generic block with as_alias
@@ -1649,3 +1653,158 @@ Django if mixed comparisons with and or
                         (identifier))))))))))
       (text)
       (django_endif))))
+
+================================================================================
+Django verbatim with whitespace trim markers
+================================================================================
+
+{%- verbatim -%}{{ not parsed }}{%- endverbatim -%}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_verbatim_block)))
+
+================================================================================
+Django regroup then unpack
+================================================================================
+
+{% regroup data by bar as grouped %}{% for grouper, group in grouped %}{{ grouper }}{% endfor %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_regroup_tag
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (lookup
+        (identifier))
+      (identifier)))
+  (django_statement
+    (django_for_block
+      (django_for_open
+        (loop_variables
+          (identifier)
+          (identifier))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_endfor))))
+
+================================================================================
+Django cycle with reset
+================================================================================
+
+{% for item in items %}{% cycle 'a' 'b' as row %}{% resetcycle row %}{% endfor %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_for_block
+      (django_for_open
+        (loop_variables
+          (identifier))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_statement
+        (django_cycle_tag
+          (cycle_value
+            (string))
+          (cycle_value
+            (string))
+          (identifier)))
+      (django_statement
+        (django_resetcycle_tag
+          (identifier)))
+      (django_endfor))))
+
+================================================================================
+Django filter arg dotted lookup
+================================================================================
+
+{{ value|default:settings.DEFAULT_VALUE }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)))
+      (filter_call
+        (filter_name)
+        (filter_argument
+          (lookup
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Django cycle nested ifchanged
+================================================================================
+
+{% for item in items %}{% ifchanged item.category %}{% cycle 'odd' 'even' %}{% endifchanged %}{% endfor %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_for_block
+      (django_for_open
+        (loop_variables
+          (identifier))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_statement
+        (django_ifchanged_block
+          (filter_expression
+            (primary_expression
+              (lookup
+                (identifier)
+                (identifier))))
+          (django_statement
+            (django_cycle_tag
+              (cycle_value
+                (string))
+              (cycle_value
+                (string))))))
+      (django_endfor))))
+
+================================================================================
+Django nested block comments (unsupported)
+================================================================================
+
+{% comment %}
+{% comment %}
+inner
+{% endcomment %}
+{% endcomment %}
+
+--------------------------------------------------------------------------------
+
+; Django does not support nested block comments. The first {% endcomment %}
+; closes the outer comment block, and the second {% endcomment %} is parsed
+; as a generic tag (unknown tag name).
+
+(document
+  (django_block_comment
+    (comment_content))
+  (django_statement
+    (django_generic_tag
+      (generic_tag_name
+        (identifier)))))

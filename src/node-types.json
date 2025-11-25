@@ -232,9 +232,13 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "comment_content",
+          "named": true
+        },
         {
           "type": "comment_text",
           "named": true
@@ -2252,6 +2256,10 @@
     "extra": true
   },
   {
+    "type": "comment_content",
+    "named": true
+  },
+  {
     "type": "comment_text",
     "named": true
   },
@@ -2297,6 +2305,10 @@
   },
   {
     "type": "endblock",
+    "named": false
+  },
+  {
+    "type": "endcomment",
     "named": false
   },
   {

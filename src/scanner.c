@@ -158,6 +158,10 @@ static bool scan_verbatim_content(Scanner *scanner, TSLexer *lexer) {
             advance(lexer);
             if (lexer->lookahead == '%') {
                 advance(lexer);
+                // Check for whitespace trim marker before keyword
+                if (lexer->lookahead == '-') {
+                    advance(lexer);
+                }
                 skip_horizontal_space(lexer);
 
                 // Check for "endverbatim"
@@ -595,6 +599,8 @@ static bool scan_plaintext_text(Scanner *scanner, TSLexer *lexer) {
 }
 
 // Scan Django block comment content until {% endcomment %}
+// The content excludes the {% endcomment %} tag - we stop right before it
+// so the grammar can match the closing tag explicitly
 static bool scan_django_comment_content(TSLexer *lexer) {
     lexer->mark_end(lexer);
 
@@ -604,10 +610,18 @@ static bool scan_django_comment_content(TSLexer *lexer) {
         }
 
         if (lexer->lookahead == '{') {
+            // Mark end BEFORE the '{' - this will be the end of content
+            // if we find {% endcomment %}
             lexer->mark_end(lexer);
             advance(lexer);
             if (lexer->lookahead == '%') {
                 advance(lexer);
+                // Check for whitespace trim marker
+                bool has_trim = false;
+                if (lexer->lookahead == '-') {
+                    has_trim = true;
+                    advance(lexer);
+                }
                 // Skip whitespace
                 while (lexer->lookahead == ' ' || lexer->lookahead == '\t' ||
                        lexer->lookahead == '\r' || lexer->lookahead == '\n') {
@@ -621,16 +635,22 @@ static bool scan_django_comment_content(TSLexer *lexer) {
                     p++;
                 }
                 if (*p == '\0') {
+                    // Peek ahead to verify this is actually {% endcomment %}
                     // Skip whitespace
                     while (lexer->lookahead == ' ' || lexer->lookahead == '\t' ||
                            lexer->lookahead == '\r' || lexer->lookahead == '\n') {
                         advance(lexer);
                     }
+                    // Check for whitespace trim marker
+                    if (lexer->lookahead == '-') {
+                        advance(lexer);
+                    }
                     if (lexer->lookahead == '%') {
                         advance(lexer);
                         if (lexer->lookahead == '}') {
-                            advance(lexer);
-                            lexer->mark_end(lexer);
+                            // Found {% endcomment %} - don't consume it!
+                            // The mark_end before '{' already set the correct end position
+                            // Return the content without the closing tag
                             lexer->result_symbol = DJANGO_COMMENT_CONTENT;
                             return true;
                         }

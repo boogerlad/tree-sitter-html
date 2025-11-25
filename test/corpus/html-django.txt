@@ -626,7 +626,8 @@ Django block comment inside HTML
   (element
     (normal_element
       (tag_name)
-      (django_block_comment)
+      (django_block_comment
+        (comment_content))
       (end_tag
         (tag_name)))))
 

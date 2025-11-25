@@ -360,7 +360,12 @@ module.exports = grammar({
       optional(seq($._django_inner_ws, alias(/[^%]+/, $.comment_text))),
       optional($._django_inner_ws),
       $._django_tag_close,
-      $._django_comment_content,
+      optional(alias($._django_comment_content, $.comment_content)),
+      $._django_tag_open,
+      optional($._django_inner_ws),
+      'endcomment',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
