@@ -8,6 +8,10 @@
       "required": true,
       "types": [
         {
+          "type": "and_keyword",
+          "named": true
+        },
+        {
           "type": "not_expression",
           "named": true
         }
@@ -131,11 +135,11 @@
           "named": true
         },
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -174,15 +178,15 @@
           "named": true
         },
         {
-          "type": "django_comment",
-          "named": true
-        },
-        {
           "type": "django_endblock",
           "named": true
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -291,15 +295,15 @@
           "named": true
         },
         {
-          "type": "django_comment",
-          "named": true
-        },
-        {
           "type": "django_elif",
           "named": true
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -347,15 +351,15 @@
           "named": true
         },
         {
-          "type": "django_comment",
-          "named": true
-        },
-        {
           "type": "django_else",
           "named": true
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -403,15 +407,15 @@
           "named": true
         },
         {
-          "type": "django_comment",
-          "named": true
-        },
-        {
           "type": "django_empty",
           "named": true
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -499,11 +503,11 @@
           "named": true
         },
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -561,10 +565,6 @@
           "named": true
         },
         {
-          "type": "django_comment",
-          "named": true
-        },
-        {
           "type": "django_empty_branch",
           "named": true
         },
@@ -578,6 +578,10 @@
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -631,15 +635,11 @@
     "named": true,
     "fields": {
       "end_name": {
-        "multiple": true,
+        "multiple": false,
         "required": true,
         "types": [
           {
-            "type": "end",
-            "named": false
-          },
-          {
-            "type": "generic_tag_name",
+            "type": "end_tag_name",
             "named": true
           }
         ]
@@ -668,11 +668,11 @@
           "named": true
         },
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -717,6 +717,10 @@
         {
           "type": "generic_tag_name",
           "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
         }
       ]
     }
@@ -731,10 +735,6 @@
       "types": [
         {
           "type": "django_block_comment",
-          "named": true
-        },
-        {
-          "type": "django_comment",
           "named": true
         },
         {
@@ -755,6 +755,10 @@
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -812,11 +816,11 @@
           "named": true
         },
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -946,11 +950,11 @@
           "named": true
         },
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1162,15 +1166,15 @@
           "named": true
         },
         {
-          "type": "django_comment",
-          "named": true
-        },
-        {
           "type": "django_endwith",
           "named": true
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1234,11 +1238,11 @@
           "named": true
         },
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1422,11 +1426,11 @@
           "named": true
         },
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1560,11 +1564,11 @@
           "named": true
         },
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1623,6 +1627,10 @@
       "types": [
         {
           "type": "and_expression",
+          "named": true
+        },
+        {
+          "type": "or_keyword",
           "named": true
         }
       ]
@@ -1702,11 +1710,11 @@
       "required": false,
       "types": [
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1729,11 +1737,11 @@
       "required": true,
       "types": [
         {
-          "type": "django_comment",
+          "type": "django_interpolation",
           "named": true
         },
         {
-          "type": "django_interpolation",
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1792,6 +1800,10 @@
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1895,6 +1907,10 @@
           "named": true
         },
         {
+          "type": "django_line_comment",
+          "named": true
+        },
+        {
           "type": "django_statement",
           "named": true
         },
@@ -1919,6 +1935,10 @@
         },
         {
           "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_line_comment",
           "named": true
         },
         {
@@ -1987,6 +2007,10 @@
     "named": false
   },
   {
+    "type": "-%}",
+    "named": false
+  },
+  {
     "type": ".",
     "named": false
   },
@@ -2033,6 +2057,10 @@
   {
     "type": "and",
     "named": false
+  },
+  {
+    "type": "and_keyword",
+    "named": true
   },
   {
     "type": "as",
@@ -2097,7 +2125,7 @@
     "named": false
   },
   {
-    "type": "django_comment",
+    "type": "django_line_comment",
     "named": true
   },
   {
@@ -2117,8 +2145,8 @@
     "named": false
   },
   {
-    "type": "end",
-    "named": false
+    "type": "end_tag_name",
+    "named": true
   },
   {
     "type": "endautoescape",
@@ -2265,6 +2293,10 @@
     "named": false
   },
   {
+    "type": "or_keyword",
+    "named": true
+  },
+  {
     "type": "plaintext_text",
     "named": true
   },
@@ -2314,6 +2346,10 @@
   },
   {
     "type": "{%",
+    "named": false
+  },
+  {
+    "type": "{%-",
     "named": false
   },
   {

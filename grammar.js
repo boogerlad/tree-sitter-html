@@ -40,13 +40,11 @@ module.exports = grammar({
 
   conflicts: $ => [
     // Django conflicts for unbalanced HTML in conditionals
-    [$.django_for_block],
-    [$.django_if_block],
     [$.django_elif_branch],
     [$.django_else_branch],
     [$.django_empty_branch],
-    // Generic block vs tag
-    [$.django_generic_block, $.django_generic_tag],
+    // With legacy syntax: could continue with 'and' or end
+    [$.with_legacy],
     // Cycle tag: named reference vs filter expression
     [$.django_cycle_tag, $.lookup],
     // Cycle value vs literal
@@ -75,7 +73,7 @@ module.exports = grammar({
 
     _django_node: $ => choice(
       $.django_interpolation,
-      $.django_comment,
+      $.django_line_comment,
       $.django_block_comment,
       $.django_statement,
     ),
@@ -141,7 +139,7 @@ module.exports = grammar({
     _raw_text_with_django: $ => repeat1(choice(
       $.raw_text,
       $.django_interpolation,
-      $.django_comment,
+      $.django_line_comment,
       $.django_statement,
     )),
 
@@ -167,7 +165,7 @@ module.exports = grammar({
     _rcdata_with_django: $ => repeat1(choice(
       $.rcdata_text,
       $.django_interpolation,
-      $.django_comment,
+      $.django_line_comment,
       $.django_statement,
     )),
 
@@ -264,6 +262,7 @@ module.exports = grammar({
       $.attribute,
       $.django_interpolation,
       $.django_statement,
+      $.django_line_comment,
     ),
 
     attribute: $ => seq(
@@ -291,6 +290,8 @@ module.exports = grammar({
         repeat(choice(
           $.entity,
           alias(/[^'&\{%]+/, $.attribute_value),
+          // Single { that's not start of Django (followed by non-Django char)
+          alias(token(prec(-1, /\{[^{%#]/)), $.attribute_value),
           $.django_interpolation,
           $.django_statement,
         )),
@@ -301,6 +302,8 @@ module.exports = grammar({
         repeat(choice(
           $.entity,
           alias(/[^"&\{%]+/, $.attribute_value),
+          // Single { that's not start of Django (followed by non-Django char)
+          alias(token(prec(-1, /\{[^{%#]/)), $.attribute_value),
           $.django_interpolation,
           $.django_statement,
         )),
@@ -318,6 +321,8 @@ module.exports = grammar({
       $.entity,
       // Single brace that's not start of Django (lookahead simulation)
       token(prec(-1, /\{/)),
+      // Greater-than sign can appear in text (after comments, etc.)
+      token(prec(-1, />/)),
       // Regular text excluding HTML special chars and braces
       token(/[^<>&\s\{][^<>&\{]*/),
     ))),
@@ -338,18 +343,19 @@ module.exports = grammar({
     // Django: Comments
     // ==========================================================================
 
-    django_comment: _ => token(seq(
+    django_line_comment: _ => token(seq(
       '{#',
       /[^#]*#*([^#}][^#]*#*)*/,
       '#}',
     )),
 
     django_block_comment: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'comment',
       optional(seq($._django_inner_ws, alias(/[^%]+/, $.comment_text))),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
       $._django_comment_content,
     ),
 
@@ -396,13 +402,13 @@ module.exports = grammar({
     ),
 
     django_if_open: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'if',
       $._django_inner_ws,
       $.test_expression,
       optional($._django_inner_ws),
-      '%}',
+      $._django_tag_close,
     ),
 
     django_elif_branch: $ => seq(
@@ -411,13 +417,13 @@ module.exports = grammar({
     ),
 
     django_elif: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'elif',
       $._django_inner_ws,
       $.test_expression,
       optional($._django_inner_ws),
-      '%}',
+      $._django_tag_close,
     ),
 
     django_else_branch: $ => seq(
@@ -426,17 +432,17 @@ module.exports = grammar({
     ),
 
     django_else: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'else',
-      '%}',
+      $._django_tag_close,
     ),
 
     django_endif: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endif',
-      '%}',
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -451,7 +457,7 @@ module.exports = grammar({
     ),
 
     django_for_open: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'for',
       $._django_inner_ws,
@@ -462,7 +468,7 @@ module.exports = grammar({
       $.filter_expression,
       optional(seq($._django_inner_ws, 'reversed')),
       optional($._django_inner_ws),
-      '%}',
+      $._django_tag_close,
     ),
 
     django_empty_branch: $ => seq(
@@ -471,17 +477,17 @@ module.exports = grammar({
     ),
 
     django_empty: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'empty',
-      '%}',
+      $._django_tag_close,
     ),
 
     django_endfor: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endfor',
-      '%}',
+      $._django_tag_close,
     ),
 
     loop_variables: $ => prec.left(seq(
@@ -500,7 +506,7 @@ module.exports = grammar({
     ),
 
     django_with_open: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'with',
       $._django_inner_ws,
@@ -508,7 +514,8 @@ module.exports = grammar({
         $.with_assignments,
         $.with_legacy,
       ),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     with_assignments: $ => repeat1(seq($.assignment, optional($._django_inner_ws))),
@@ -532,10 +539,10 @@ module.exports = grammar({
     ),
 
     django_endwith: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endwith',
-      '%}',
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -549,20 +556,22 @@ module.exports = grammar({
     ),
 
     django_block_open: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'block',
       $._django_inner_ws,
       $.identifier,
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     django_endblock: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endblock',
       optional(seq($._django_inner_ws, $.identifier)),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -570,21 +579,23 @@ module.exports = grammar({
     // ==========================================================================
 
     django_extends_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'extends',
       $._django_inner_ws,
       $.filter_expression,
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     django_include_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'include',
       $._django_inner_ws,
       $.filter_expression,
       optional(choice(
+        // with ... only
         seq(
           $._django_inner_ws,
           'with',
@@ -592,13 +603,24 @@ module.exports = grammar({
           repeat1(seq($.assignment, optional($._django_inner_ws))),
           optional(seq(optional($._django_inner_ws), 'only')),
         ),
+        // only with ... (alternative order)
+        seq(
+          $._django_inner_ws,
+          'only',
+          $._django_inner_ws,
+          'with',
+          $._django_inner_ws,
+          repeat1(seq($.assignment, optional($._django_inner_ws))),
+        ),
+        // only (standalone)
         seq($._django_inner_ws, 'only'),
       )),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     django_load_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'load',
       $._django_inner_ws,
@@ -611,7 +633,7 @@ module.exports = grammar({
         ),
         repeat1(seq($.library_name, optional($._django_inner_ws))),
       ),
-      '%}',
+      $._django_tag_close,
     ),
 
     library_name: _ => /[A-Za-z_][\w.]*/,
@@ -621,7 +643,7 @@ module.exports = grammar({
     // ==========================================================================
 
     django_url_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'url',
       $._django_inner_ws,
@@ -631,7 +653,8 @@ module.exports = grammar({
         choice($.named_argument, $.filter_expression),
       )),
       optional(seq($._django_inner_ws, 'as', $._django_inner_ws, $.identifier)),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     named_argument: $ => prec.dynamic(1, seq(
@@ -645,10 +668,11 @@ module.exports = grammar({
     // ==========================================================================
 
     django_csrf_token_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'csrf_token',
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -656,17 +680,19 @@ module.exports = grammar({
     // ==========================================================================
 
     django_autoescape_block: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'autoescape',
       $._django_inner_ws,
       choice('on', 'off'),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
       repeat($._node),
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endautoescape',
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -674,38 +700,42 @@ module.exports = grammar({
     // ==========================================================================
 
     django_filter_block: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'filter',
       $._django_inner_ws,
       $.filter_chain,
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
       repeat($._node),
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endfilter',
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
-    filter_chain: $ => seq(
+    filter_chain: $ => prec.left(seq(
       $.filter_call,
       repeat(seq(optional($._django_inner_ws), '|', optional($._django_inner_ws), $.filter_call)),
-    ),
+    )),
 
     // ==========================================================================
     // Django: Spaceless Block
     // ==========================================================================
 
     django_spaceless_block: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'spaceless',
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
       repeat($._node),
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endspaceless',
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -713,17 +743,19 @@ module.exports = grammar({
     // ==========================================================================
 
     django_verbatim_block: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'verbatim',
       optional(seq($._django_inner_ws, $.identifier)),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
       repeat($._html_node),
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endverbatim',
       optional(seq($._django_inner_ws, $.identifier)),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -731,7 +763,7 @@ module.exports = grammar({
     // ==========================================================================
 
     django_cycle_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'cycle',
       $._django_inner_ws,
@@ -743,7 +775,8 @@ module.exports = grammar({
           optional(seq($._django_inner_ws, 'as', $._django_inner_ws, $.identifier, optional(seq($._django_inner_ws, 'silent')))),
         ),
       ),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     cycle_value: $ => choice($.string, $.filter_expression),
@@ -753,12 +786,13 @@ module.exports = grammar({
     // ==========================================================================
 
     django_firstof_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'firstof',
       repeat1(seq($._django_inner_ws, $.filter_expression)),
       optional(seq($._django_inner_ws, 'as', $._django_inner_ws, $.identifier)),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -766,13 +800,14 @@ module.exports = grammar({
     // ==========================================================================
 
     django_now_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'now',
       $._django_inner_ws,
       $.string,
       optional(seq($._django_inner_ws, 'as', $._django_inner_ws, $.identifier)),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -780,7 +815,7 @@ module.exports = grammar({
     // ==========================================================================
 
     django_regroup_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'regroup',
       $._django_inner_ws,
@@ -793,7 +828,8 @@ module.exports = grammar({
       'as',
       $._django_inner_ws,
       $.identifier,
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -801,23 +837,26 @@ module.exports = grammar({
     // ==========================================================================
 
     django_ifchanged_block: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'ifchanged',
       optional(repeat1(seq($._django_inner_ws, $.filter_expression))),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
       repeat($._node),
       optional(seq(
-        '{%',
+        $._django_tag_open,
         optional($._django_inner_ws),
         'else',
-        '%}',
+        optional($._django_inner_ws),
+        $._django_tag_close,
         repeat($._node),
       )),
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'endifchanged',
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -825,7 +864,7 @@ module.exports = grammar({
     // ==========================================================================
 
     django_widthratio_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'widthratio',
       $._django_inner_ws,
@@ -835,7 +874,8 @@ module.exports = grammar({
       $._django_inner_ws,
       $.filter_expression,
       optional(seq($._django_inner_ws, 'as', $._django_inner_ws, $.identifier)),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -843,7 +883,7 @@ module.exports = grammar({
     // ==========================================================================
 
     django_templatetag_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'templatetag',
       $._django_inner_ws,
@@ -857,7 +897,8 @@ module.exports = grammar({
         'opencomment',
         'closecomment',
       ),
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -865,10 +906,11 @@ module.exports = grammar({
     // ==========================================================================
 
     django_debug_tag: $ => seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       'debug',
-      '%}',
+      optional($._django_inner_ws),
+      $._django_tag_close,
     ),
 
     // ==========================================================================
@@ -876,24 +918,29 @@ module.exports = grammar({
     // ==========================================================================
 
     django_generic_block: $ => prec.dynamic(-1, seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       field('name', $.generic_tag_name),
       repeat(seq($._django_inner_ws, $._tag_argument)),
-      '%}',
-      repeat($._node),
-      '{%',
       optional($._django_inner_ws),
-      field('end_name', seq('end', $.generic_tag_name)),
-      '%}',
+      $._django_tag_close,
+      repeat($._node),
+      $._django_tag_open,
+      optional($._django_inner_ws),
+      field('end_name', alias(token(seq('end', /[a-zA-Z_][a-zA-Z0-9_]*/)), $.end_tag_name)),
+      optional($._django_inner_ws),
+      $._django_tag_close,
     )),
 
     django_generic_tag: $ => prec(-1, seq(
-      '{%',
+      $._django_tag_open,
       optional($._django_inner_ws),
       $.generic_tag_name,
       repeat(seq($._django_inner_ws, $._tag_argument)),
-      '%}',
+      // Optional "as identifier" at the end (e.g., {% static "file.css" as asset_url %})
+      optional(seq($._django_inner_ws, 'as', $._django_inner_ws, $.identifier)),
+      optional($._django_inner_ws),
+      $._django_tag_close,
     )),
 
     generic_tag_name: $ => $.identifier,
@@ -961,51 +1008,50 @@ module.exports = grammar({
 
     or_expression: $ => prec.left(1, seq(
       $.and_expression,
-      repeat(seq($._or_keyword, $.and_expression)),
+      repeat(seq($.or_keyword, $.and_expression)),
     )),
 
-    _or_keyword: _ => token(seq(/[ \t\r\n]+/, 'or', /[ \t\r\n]+/)),
+    or_keyword: _ => token(prec(10, 'or')),
 
     and_expression: $ => prec.left(2, seq(
       $.not_expression,
-      repeat(seq($._and_keyword, $.not_expression)),
+      repeat(seq($.and_keyword, $.not_expression)),
     )),
 
-    _and_keyword: _ => token(seq(/[ \t\r\n]+/, 'and', /[ \t\r\n]+/)),
+    and_keyword: _ => token(prec(10, 'and')),
 
     not_expression: $ => choice(
-      prec(3, seq('not', $._django_inner_ws, $.not_expression)),
+      prec(3, seq(token(prec(10, 'not')), $.not_expression)),
       $.comparison_expression,
     ),
 
     comparison_expression: $ => prec.left(4, seq(
       $.filter_expression,
       repeat(seq(
-        $._django_inner_ws,
         $.comparison_operator,
-        $._django_inner_ws,
         $.filter_expression,
       )),
     )),
 
     comparison_operator: _ => choice(
-      token(prec(5, seq('not', /[ \t\r\n]+/, 'in'))),
-      token(seq('is', /[ \t\r\n]+/, 'not')),
-      'in',
-      'is',
-      '==',
-      '!=',
-      '>=',
-      '>',
-      '<=',
-      '<',
+      token(prec(10, seq('not', /[ \t\r\n]+/, 'in'))),
+      token(prec(10, seq('is', /[ \t\r\n]+/, 'not'))),
+      token(prec(10, 'in')),
+      token(prec(10, 'is')),
+      token(prec(10, '==')),
+      token(prec(10, '!=')),
+      token(prec(10, '>=')),
+      token(prec(10, '>')),
+      token(prec(10, '<=')),
+      token(prec(10, '<')),
     ),
 
     // ==========================================================================
     // Django: Tokens
     // ==========================================================================
 
-    identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    // Identifier that excludes Django keywords (and, or, not, in, is, as)
+    identifier: _ => token(prec(-1, /[a-zA-Z_][a-zA-Z0-9_]*/)),
 
     number: _ => token(prec(1, seq(
       optional(choice('+', '-')),
@@ -1030,6 +1076,16 @@ module.exports = grammar({
       ),
       ')',
     )),
+
+    // ==========================================================================
+    // Django: Tag delimiters (with optional whitespace trimming)
+    // ==========================================================================
+
+    // Django tag open: {% or {%-
+    _django_tag_open: _ => choice('{%', '{%-'),
+
+    // Django tag close: %} or -%}
+    _django_tag_close: _ => choice('%}', '-%}'),
 
     // ==========================================================================
     // Django: Whitespace handling

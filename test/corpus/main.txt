@@ -237,21 +237,24 @@ Raw text elements
     (script_element
       (start_tag
         (tag_name))
-      (raw_text)
+      (raw_text
+        (raw_text))
       (end_tag
         (tag_name))))
   (element
     (style_element
       (start_tag
         (tag_name))
-      (raw_text)
+      (raw_text
+        (raw_text))
       (end_tag
         (tag_name))))
   (element
     (script_element
       (start_tag
         (tag_name))
-      (raw_text)
+      (raw_text
+        (raw_text))
       (end_tag
         (tag_name)))))
 
