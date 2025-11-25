@@ -207,6 +207,70 @@ Django with block
       (django_endwith))))
 
 ================================================================================
+Django with multiple assignments
+================================================================================
+
+{% with foo=bar baz=qux %}content{% endwith %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_with_block
+      (django_with_open
+        (with_assignments
+          (assignment
+            (identifier)
+            (filter_expression
+              (primary_expression
+                (lookup
+                  (identifier)))))
+          (assignment
+            (identifier)
+            (filter_expression
+              (primary_expression
+                (lookup
+                  (identifier)))))))
+      (text)
+      (django_endwith))))
+
+================================================================================
+Django filter with spaces around pipe
+================================================================================
+
+{{ foo | lower }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)))
+      (filter_call
+        (filter_name)))))
+
+================================================================================
+Django filter chain with spaces
+================================================================================
+
+{{ foo | lower | upper }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)))
+      (filter_call
+        (filter_name))
+      (filter_call
+        (filter_name)))))
+
+================================================================================
 Django extends tag
 ================================================================================
 

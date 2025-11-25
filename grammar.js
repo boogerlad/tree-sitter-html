@@ -47,6 +47,8 @@ module.exports = grammar({
     [$.django_empty_branch],
     // With legacy syntax: could continue with 'and' or end
     [$.with_legacy],
+    // With assignments: ambiguity in repeat with optional whitespace
+    [$.with_assignments],
     // Cycle tag: named reference vs filter expression
     [$.django_cycle_tag, $.lookup],
     // Cycle value vs literal
@@ -532,7 +534,14 @@ module.exports = grammar({
       $._django_tag_close,
     ),
 
-    with_assignments: $ => repeat1(seq($.assignment, optional($._django_inner_ws))),
+    with_assignments: $ => repeat1($._spaced_assignment),
+
+    // Assignment with optional leading whitespace - the whitespace is consumed
+    // as part of this rule rather than relying on extras
+    _spaced_assignment: $ => seq(
+      optional($._django_inner_ws),
+      $.assignment,
+    ),
 
     with_legacy: $ => seq(
       $.filter_expression,
@@ -1047,15 +1056,12 @@ module.exports = grammar({
     // Django: Expressions
     // ==========================================================================
 
-    filter_expression: $ => prec.left(seq(
+    filter_expression: $ => seq(
       $.primary_expression,
-      repeat(seq(
-        optional($._django_inner_ws),
-        '|',
-        optional($._django_inner_ws),
-        $.filter_call,
-      )),
-    )),
+      repeat(seq(alias($._filter_pipe, '|'), $.filter_call)),
+    ),
+
+    _filter_pipe: _ => token(prec(1, /[ \t\r\n]*\|/)),
 
     primary_expression: $ => choice(
       $.literal,

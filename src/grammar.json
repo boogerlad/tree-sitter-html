@@ -2066,26 +2066,30 @@
     "with_assignments": {
       "type": "REPEAT1",
       "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "assignment"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "_django_inner_ws"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          }
-        ]
+        "type": "SYMBOL",
+        "name": "_spaced_assignment"
       }
+    },
+    "_spaced_assignment": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_django_inner_ws"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment"
+        }
+      ]
     },
     "with_legacy": {
       "type": "SEQ",
@@ -4679,56 +4683,44 @@
       ]
     },
     "filter_expression": {
-      "type": "PREC_LEFT",
-      "value": 0,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "primary_expression"
-          },
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "SYMBOL",
-                      "name": "_django_inner_ws"
-                    },
-                    {
-                      "type": "BLANK"
-                    }
-                  ]
-                },
-                {
-                  "type": "STRING",
-                  "value": "|"
-                },
-                {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "SYMBOL",
-                      "name": "_django_inner_ws"
-                    },
-                    {
-                      "type": "BLANK"
-                    }
-                  ]
-                },
-                {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "primary_expression"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "ALIAS",
+                "content": {
                   "type": "SYMBOL",
-                  "name": "filter_call"
-                }
-              ]
-            }
+                  "name": "_filter_pipe"
+                },
+                "named": false,
+                "value": "|"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "filter_call"
+              }
+            ]
           }
-        ]
+        }
+      ]
+    },
+    "_filter_pipe": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 1,
+        "content": {
+          "type": "PATTERN",
+          "value": "[ \\t\\r\\n]*\\|"
+        }
       }
     },
     "primary_expression": {
@@ -5584,6 +5576,9 @@
     ],
     [
       "with_legacy"
+    ],
+    [
+      "with_assignments"
     ],
     [
       "django_cycle_tag",
