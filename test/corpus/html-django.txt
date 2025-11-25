@@ -758,10 +758,11 @@ Django static tag in HTML
             (django_generic_tag
               (generic_tag_name
                 (identifier))
-              (filter_expression
-                (primary_expression
-                  (literal
-                    (string))))))))))
+              (tag_argument
+                (filter_expression
+                  (primary_expression
+                    (literal
+                      (string)))))))))))
   (element
     (script_element
       (start_tag
@@ -773,10 +774,11 @@ Django static tag in HTML
               (django_generic_tag
                 (generic_tag_name
                   (identifier))
-                (filter_expression
-                  (primary_expression
-                    (literal
-                      (string)))))))))
+                (tag_argument
+                  (filter_expression
+                    (primary_expression
+                      (literal
+                        (string))))))))))
       (end_tag
         (tag_name)))))
 
@@ -1006,17 +1008,7 @@ Django verbatim with HTML
     (normal_element
       (tag_name)
       (django_statement
-        (django_verbatim_block
-          (element
-            (normal_element
-              (tag_name)
-              (django_interpolation
-                (filter_expression
-                  (primary_expression
-                    (lookup
-                      (identifier)))))
-              (end_tag
-                (tag_name))))))
+        (django_verbatim_block))
       (end_tag
         (tag_name)))))
 

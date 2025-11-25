@@ -22,6 +22,8 @@ enum TokenType {
     COMMENT,
     // Django externals
     DJANGO_COMMENT_CONTENT,
+    VERBATIM_START,
+    VERBATIM_BLOCK_CONTENT,
 };
 
 typedef enum {
@@ -39,6 +41,10 @@ typedef enum {
 
 typedef struct {
     Array(Tag) tags;
+    // Verbatim suffix storage
+    char *verbatim_suffix;
+    uint32_t verbatim_length;
+    uint32_t verbatim_capacity;
 } Scanner;
 
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
@@ -52,11 +58,165 @@ static inline bool is_django_delimiter(TSLexer *lexer) {
     return true;  // Will check second char in caller
 }
 
+// Verbatim suffix helpers
+static inline bool is_horizontal_space(int32_t c) {
+    return c == ' ' || c == '\t' || c == '\r';
+}
+
+static inline void skip_horizontal_space(TSLexer *lexer) {
+    while (is_horizontal_space(lexer->lookahead)) advance(lexer);
+}
+
+static bool ensure_verbatim_capacity(Scanner *scanner, uint32_t size) {
+    if (scanner->verbatim_capacity >= size) return true;
+    uint32_t new_cap = scanner->verbatim_capacity ? scanner->verbatim_capacity : 64;
+    while (new_cap < size) new_cap *= 2;
+    char *new_buf = (char *)realloc(scanner->verbatim_suffix, new_cap);
+    if (!new_buf) return false;
+    scanner->verbatim_suffix = new_buf;
+    scanner->verbatim_capacity = new_cap;
+    return true;
+}
+
+static void clear_verbatim_suffix(Scanner *scanner) {
+    scanner->verbatim_length = 0;
+}
+
+// Scan verbatim start: captures suffix after "verbatim" keyword until %}
+static bool scan_verbatim_start(Scanner *scanner, TSLexer *lexer) {
+    lexer->mark_end(lexer);
+    uint32_t length = 0;
+    uint32_t last_non_space = 0;
+
+    for (;;) {
+        if (lexer->lookahead == 0 || lexer->lookahead == '\n') return false;
+
+        // Check for whitespace trimming marker
+        if (lexer->lookahead == '-') {
+            advance(lexer);
+            if (lexer->lookahead == '%') {
+                advance(lexer);
+                if (lexer->lookahead == '}') {
+                    // Trim trailing horizontal whitespace
+                    length = last_non_space;
+                    scanner->verbatim_length = length;
+                    advance(lexer); // consume '}'
+                    lexer->mark_end(lexer);
+                    lexer->result_symbol = VERBATIM_START;
+                    return true;
+                }
+                // Not a tag end, treat '-' and '%' as content
+                if (!ensure_verbatim_capacity(scanner, length + 2)) return false;
+                scanner->verbatim_suffix[length++] = '-';
+                scanner->verbatim_suffix[length++] = '%';
+                last_non_space = length;
+                continue;
+            }
+            // Not a tag end, treat '-' as content
+            if (!ensure_verbatim_capacity(scanner, length + 1)) return false;
+            scanner->verbatim_suffix[length++] = '-';
+            last_non_space = length;
+            continue;
+        }
+
+        if (lexer->lookahead == '%') {
+            advance(lexer);
+            if (lexer->lookahead == '}') {
+                // Trim trailing horizontal whitespace
+                length = last_non_space;
+                scanner->verbatim_length = length;
+                advance(lexer); // consume '}'
+                lexer->mark_end(lexer);
+                lexer->result_symbol = VERBATIM_START;
+                return true;
+            }
+            // Not a tag end, treat '%' as content
+            if (!ensure_verbatim_capacity(scanner, length + 1)) return false;
+            scanner->verbatim_suffix[length++] = '%';
+            last_non_space = length;
+            continue;
+        }
+
+        if (!ensure_verbatim_capacity(scanner, length + 1)) return false;
+        scanner->verbatim_suffix[length] = (char)lexer->lookahead;
+        if (!is_horizontal_space(lexer->lookahead)) {
+            last_non_space = length + 1;
+        }
+        length++;
+        advance(lexer);
+    }
+}
+
+// Scan verbatim content until {% endverbatim<suffix> %}
+static bool scan_verbatim_content(Scanner *scanner, TSLexer *lexer) {
+    for (;;) {
+        if (lexer->lookahead == 0) return false;
+
+        lexer->mark_end(lexer);
+
+        if (lexer->lookahead == '{') {
+            advance(lexer);
+            if (lexer->lookahead == '%') {
+                advance(lexer);
+                skip_horizontal_space(lexer);
+
+                // Check for "endverbatim"
+                const char *kw = "endverbatim";
+                const char *p = kw;
+                while (*p && lexer->lookahead == *p) {
+                    advance(lexer);
+                    p++;
+                }
+                if (*p == '\0') {
+                    // Now match the suffix
+                    uint32_t i = 0;
+                    while (i < scanner->verbatim_length && lexer->lookahead == scanner->verbatim_suffix[i]) {
+                        advance(lexer);
+                        i++;
+                    }
+                    if (i == scanner->verbatim_length) {
+                        skip_horizontal_space(lexer);
+                        // Check for whitespace trim marker
+                        if (lexer->lookahead == '-') {
+                            advance(lexer);
+                        }
+                        if (lexer->lookahead == '%') {
+                            advance(lexer);
+                            if (lexer->lookahead == '}') {
+                                advance(lexer);
+                                lexer->mark_end(lexer);
+                                lexer->result_symbol = VERBATIM_BLOCK_CONTENT;
+                                clear_verbatim_suffix(scanner);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        advance(lexer);
+    }
+}
+
 static unsigned serialize(Scanner *scanner, char *buffer) {
     uint16_t tag_count = scanner->tags.size > UINT16_MAX ? UINT16_MAX : scanner->tags.size;
     uint16_t serialized_tag_count = 0;
 
-    unsigned size = sizeof(tag_count);
+    // First byte: verbatim suffix length (0-255)
+    uint8_t verbatim_len = scanner->verbatim_length > 255 ? 255 : (uint8_t)scanner->verbatim_length;
+    buffer[0] = (char)verbatim_len;
+    unsigned size = 1;
+
+    // Copy verbatim suffix
+    if (verbatim_len > 0) {
+        memcpy(&buffer[size], scanner->verbatim_suffix, verbatim_len);
+        size += verbatim_len;
+    }
+
+    // Then tag count header
+    unsigned tag_header_pos = size;
+    size += sizeof(tag_count);
     memcpy(&buffer[size], &tag_count, sizeof(tag_count));
     size += sizeof(tag_count);
 
@@ -82,7 +242,7 @@ static unsigned serialize(Scanner *scanner, char *buffer) {
         }
     }
 
-    memcpy(&buffer[0], &serialized_tag_count, sizeof(serialized_tag_count));
+    memcpy(&buffer[tag_header_pos], &serialized_tag_count, sizeof(serialized_tag_count));
     return size;
 }
 
@@ -91,9 +251,24 @@ static void deserialize(Scanner *scanner, const char *buffer, unsigned length) {
         tag_free(&scanner->tags.contents[i]);
     }
     array_clear(&scanner->tags);
+    clear_verbatim_suffix(scanner);
 
     if (length > 0) {
         unsigned size = 0;
+
+        // First byte: verbatim suffix length
+        uint8_t verbatim_len = (uint8_t)buffer[size++];
+        if (verbatim_len > 0 && size + verbatim_len <= length) {
+            if (ensure_verbatim_capacity(scanner, verbatim_len)) {
+                memcpy(scanner->verbatim_suffix, &buffer[size], verbatim_len);
+                scanner->verbatim_length = verbatim_len;
+            }
+            size += verbatim_len;
+        }
+
+        // Then tag count header
+        if (size + sizeof(uint16_t) * 2 > length) return;
+
         uint16_t tag_count = 0;
         uint16_t serialized_tag_count = 0;
 
@@ -643,6 +818,16 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
         return scan_django_comment_content(lexer);
     }
 
+    // Handle verbatim start (after "verbatim" keyword)
+    if (valid_symbols[VERBATIM_START]) {
+        return scan_verbatim_start(scanner, lexer);
+    }
+
+    // Handle verbatim block content
+    if (valid_symbols[VERBATIM_BLOCK_CONTENT]) {
+        return scan_verbatim_content(scanner, lexer);
+    }
+
     bool valid_start_tag =
         valid_symbols[HTML_START_TAG_NAME] ||
         valid_symbols[VOID_START_TAG_NAME] ||
@@ -734,5 +919,6 @@ void tree_sitter_htmldjango_external_scanner_destroy(void *payload) {
         tag_free(&scanner->tags.contents[i]);
     }
     array_delete(&scanner->tags);
+    free(scanner->verbatim_suffix);
     ts_free(scanner);
 }

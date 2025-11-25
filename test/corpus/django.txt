@@ -311,8 +311,7 @@ Django verbatim block
 
 (document
   (django_statement
-    (django_verbatim_block
-      (text))))
+    (django_verbatim_block)))
 
 ================================================================================
 Django autoescape block
@@ -378,10 +377,11 @@ Django generic tag
     (django_generic_tag
       (generic_tag_name
         (identifier))
-      (filter_expression
-        (primary_expression
-          (literal
-            (string)))))))
+      (tag_argument
+        (filter_expression
+          (primary_expression
+            (literal
+              (string))))))))
 
 ================================================================================
 Django generic block
@@ -396,13 +396,1119 @@ Django generic block
     (django_generic_block
       (generic_tag_name
         (identifier))
+      (tag_argument
+        (filter_expression
+          (primary_expression
+            (literal
+              (number)))))
+      (tag_argument
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (text)
+      (end_tag_name))))
+
+================================================================================
+Django lorem tag
+================================================================================
+
+{% lorem %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_lorem_tag)))
+
+================================================================================
+Django lorem tag with count and method
+================================================================================
+
+{% lorem 3 p %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_lorem_tag
       (filter_expression
         (primary_expression
           (literal
-            (number))))
+            (number)))))))
+
+================================================================================
+Django lorem tag with variable and random
+================================================================================
+
+{% lorem count random %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_lorem_tag
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)))))))
+
+================================================================================
+Django resetcycle tag
+================================================================================
+
+{% resetcycle %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_resetcycle_tag)))
+
+================================================================================
+Django resetcycle tag with name
+================================================================================
+
+{% resetcycle rowcolors %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_resetcycle_tag
+      (identifier))))
+
+================================================================================
+Django querystring tag with named args
+================================================================================
+
+{% querystring page=2 q=term %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_querystring_tag
+      (named_argument
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (literal
+              (number)))))
+      (named_argument
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier))))))))
+
+================================================================================
+Django querystring tag with positional and named
+================================================================================
+
+{% querystring request.path q=term %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_querystring_tag
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)
+            (identifier))))
+      (named_argument
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier))))))))
+
+================================================================================
+Django partialdef block
+================================================================================
+
+{% partialdef snippet %}Inner{% endpartialdef %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_partialdef_block
+      (identifier)
+      (text))))
+
+================================================================================
+Django partialdef block with inline and end name
+================================================================================
+
+{% partialdef snippet inline %}Body{% endpartialdef snippet %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_partialdef_block
+      (identifier)
+      (text)
+      (identifier))))
+
+================================================================================
+Django partial tag
+================================================================================
+
+{% partial snippet %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_partial_tag
+      (identifier))))
+
+================================================================================
+Django verbatim with multi-word suffix
+================================================================================
+
+{% verbatim custom name %}{{ not parsed }}{% endverbatim custom name %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_verbatim_block)))
+
+================================================================================
+Django i18n string in interpolation
+================================================================================
+
+{{ _("hello") }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (literal
+          (i18n_string))))))
+
+================================================================================
+Django i18n string with filter
+================================================================================
+
+{{ _("hello")|upper }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (literal
+          (i18n_string)))
+      (filter_call
+        (filter_name)))))
+
+================================================================================
+Django filter with i18n string argument
+================================================================================
+
+{{ value|default_if_none:_("yes") }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)))
+      (filter_call
+        (filter_name)
+        (filter_argument
+          (literal
+            (i18n_string)))))))
+
+================================================================================
+Django numeric lookup
+================================================================================
+
+{{ arr.0 }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)
+          (numeric_index))))))
+
+================================================================================
+Django numeric path segment
+================================================================================
+
+{{ data.0.slug }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)
+          (numeric_index)
+          (identifier))))))
+
+================================================================================
+Django with legacy aliases
+================================================================================
+
+{% with a as foo and b.c as bar %}X{% endwith %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_with_block
+      (django_with_open
+        (with_legacy
+          (filter_expression
+            (primary_expression
+              (lookup
+                (identifier))))
+          (identifier)
+          (filter_expression
+            (primary_expression
+              (lookup
+                (identifier)
+                (identifier))))
+          (identifier)))
+      (text)
+      (django_endwith))))
+
+================================================================================
+Django for with tuple unpacking
+================================================================================
+
+{% for x, y in items %}{{ x }}{% endfor %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_for_block
+      (django_for_open
+        (loop_variables
+          (identifier)
+          (identifier))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_endfor))))
+
+================================================================================
+Django for with reversed
+================================================================================
+
+{% for item in items reversed %}{{ item }}{% endfor %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_for_block
+      (django_for_open
+        (loop_variables
+          (identifier))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_endfor))))
+
+================================================================================
+Django cycle with as and silent
+================================================================================
+
+{% cycle 'row1' 'row2' as rowcolors silent %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_cycle_tag
+      (cycle_value
+        (string))
+      (cycle_value
+        (string))
+      (identifier))))
+
+================================================================================
+Django cycle named reference
+================================================================================
+
+{% cycle rowcolors %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_cycle_tag
+      (identifier))))
+
+================================================================================
+Django load from library
+================================================================================
+
+{% load foo bar from baz %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_load_tag
+      (library_name)
+      (library_name)
+      (library_name))))
+
+================================================================================
+Django filter block with chain
+================================================================================
+
+{% filter upper|add:"!" %}text{% endfilter %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_filter_block
+      (filter_chain
+        (filter_call
+          (filter_name))
+        (filter_call
+          (filter_name)
+          (filter_argument
+            (literal
+              (string)))))
+      (text))))
+
+================================================================================
+Django include with context
+================================================================================
+
+{% include "partial.html" with foo="bar" only %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_include_tag
+      (filter_expression
+        (primary_expression
+          (literal
+            (string))))
+      (assignment
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (literal
+              (string))))))))
+
+================================================================================
+Django if with comparison operators
+================================================================================
+
+{% if a == b and c != d %}yes{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_if_block
+      (django_if_open
+        (test_expression
+          (or_expression
+            (and_expression
+              (not_expression
+                (comparison_expression
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))
+                  (comparison_operator)
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))))
+              (and_keyword)
+              (not_expression
+                (comparison_expression
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))
+                  (comparison_operator)
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))))))))
+      (text)
+      (django_endif))))
+
+================================================================================
+Django if with is not comparison
+================================================================================
+
+{% if value is not None %}yes{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_if_block
+      (django_if_open
+        (test_expression
+          (or_expression
+            (and_expression
+              (not_expression
+                (comparison_expression
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))
+                  (comparison_operator)
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))))))))
+      (text)
+      (django_endif))))
+
+================================================================================
+Django if with not in comparison
+================================================================================
+
+{% if item not in items %}yes{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_if_block
+      (django_if_open
+        (test_expression
+          (or_expression
+            (and_expression
+              (not_expression
+                (comparison_expression
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))
+                  (comparison_operator)
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))))))))
+      (text)
+      (django_endif))))
+
+================================================================================
+Django plain lookup
+================================================================================
+
+{{ user.profile.name }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)
+          (identifier)
+          (identifier))))))
+
+================================================================================
+Django string literal
+================================================================================
+
+{{ "hi" }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (literal
+          (string))))))
+
+================================================================================
+Django filter arg lookup
+================================================================================
+
+{{ var|default_if_none:var2 }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)))
+      (filter_call
+        (filter_name)
+        (filter_argument
+          (lookup
+            (identifier)))))))
+
+================================================================================
+Django literal with punctuation arg
+================================================================================
+
+{{ "string"|filter:"quoted argument, with non-word characters!" }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (literal
+          (string)))
+      (filter_call
+        (filter_name)
+        (filter_argument
+          (literal
+            (string)))))))
+
+================================================================================
+Django line comment with braces
+================================================================================
+
+{# {% #}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_line_comment))
+
+================================================================================
+Django line comment with percent then text
+================================================================================
+
+foo{# %} #}bar
+
+--------------------------------------------------------------------------------
+
+(document
+  (text)
+  (django_line_comment)
+  (text))
+
+================================================================================
+Django block comment hides tags
+================================================================================
+
+{% comment %} {% if %} {% endcomment %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_block_comment))
+
+================================================================================
+Django block comment hides variables
+================================================================================
+
+foo{% comment %}{{ x }}{% endcomment %}bar
+
+--------------------------------------------------------------------------------
+
+(document
+  (text)
+  (django_block_comment)
+  (text))
+
+================================================================================
+Django if unary not
+================================================================================
+
+{% if not user.is_active %}inactive{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_if_block
+      (django_if_open
+        (test_expression
+          (or_expression
+            (and_expression
+              (not_expression
+                (not_expression
+                  (comparison_expression
+                    (filter_expression
+                      (primary_expression
+                        (lookup
+                          (identifier)
+                          (identifier)))))))))))
+      (text)
+      (django_endif))))
+
+================================================================================
+Django firstof with as
+================================================================================
+
+{% firstof a b "fallback" as chosen %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_firstof_tag
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (filter_expression
+        (primary_expression
+          (literal
+            (string))))
+      (identifier))))
+
+================================================================================
+Django ifchanged with else
+================================================================================
+
+{% ifchanged total %}A{% else %}B{% endifchanged %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_ifchanged_block
       (filter_expression
         (primary_expression
           (lookup
             (identifier))))
       (text)
+      (text))))
+
+================================================================================
+Django regroup tag
+================================================================================
+
+{% regroup items by category as grouped %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_regroup_tag
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (lookup
+        (identifier))
+      (identifier))))
+
+================================================================================
+Django widthratio with as
+================================================================================
+
+{% widthratio a b 100 as pct %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_widthratio_tag
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (filter_expression
+        (primary_expression
+          (literal
+            (number))))
+      (identifier))))
+
+================================================================================
+Django now tag with as
+================================================================================
+
+{% now "jS F" as formatted %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_now_tag
+      (string)
+      (identifier))))
+
+================================================================================
+Django templatetag braces
+================================================================================
+
+{% templatetag openbrace %}{% templatetag closebrace %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_templatetag_tag))
+  (django_statement
+    (django_templatetag_tag)))
+
+================================================================================
+Django generic tag with as
+================================================================================
+
+{% static "admin/app.js" as asset_url %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_generic_tag
+      (generic_tag_name
+        (identifier))
+      (tag_argument
+        (as_alias
+          (filter_expression
+            (primary_expression
+              (literal
+                (string))))
+          (identifier))))))
+
+================================================================================
+Django debug tag
+================================================================================
+
+{% debug %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_debug_tag)))
+
+================================================================================
+Django with underscore alias
+================================================================================
+
+{% with foo as _bar %}X{% endwith %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_with_block
+      (django_with_open
+        (with_legacy
+          (filter_expression
+            (primary_expression
+              (lookup
+                (identifier))))
+          (identifier)))
+      (text)
+      (django_endwith))))
+
+================================================================================
+Django with assignment spaces invalid (ERROR)
+================================================================================
+
+{% with foo =1 %}{% endwith %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (ERROR
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier))))
+    (numeric_index))
+  (django_statement
+    (django_generic_tag
+      (generic_tag_name
+        (identifier)))))
+
+================================================================================
+Django url named args spacing invalid (ERROR)
+================================================================================
+
+{% url "view-name" id = foo.slug %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_url_tag
+      (filter_expression
+        (primary_expression
+          (literal
+            (string))))
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (ERROR)
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Django block comment with note
+================================================================================
+
+{% comment "note" %}hidden{% endcomment %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_block_comment
+    (comment_text)))
+
+================================================================================
+Django generic block with as_alias
+================================================================================
+
+{% cache 60 sidebar request.user as cached %}content{% endcache %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_generic_block
+      (generic_tag_name
+        (identifier))
+      (tag_argument
+        (filter_expression
+          (primary_expression
+            (literal
+              (number)))))
+      (tag_argument
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (tag_argument
+        (as_alias
+          (filter_expression
+            (primary_expression
+              (lookup
+                (identifier)
+                (identifier))))
+          (identifier)))
+      (text)
       (end_tag_name))))
+
+================================================================================
+Django url with named args and as
+================================================================================
+
+{% url "view-name" id=foo.slug page=2 as the_url %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_url_tag
+      (filter_expression
+        (primary_expression
+          (literal
+            (string))))
+      (named_argument
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)
+              (identifier)))))
+      (named_argument
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (literal
+              (number)))))
+      (identifier))))
+
+================================================================================
+Django for reversed tuple unpack with empty
+================================================================================
+
+{% for x, y in items reversed %}{{ x }}{{ y }}{% empty %}none{% endfor %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_for_block
+      (django_for_open
+        (loop_variables
+          (identifier)
+          (identifier))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (django_empty_branch
+        (django_empty)
+        (text))
+      (django_endfor))))
+
+================================================================================
+Django include only with order
+================================================================================
+
+{% include "tmpl.html" only with foo="bar" %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_include_tag
+      (filter_expression
+        (primary_expression
+          (literal
+            (string))))
+      (assignment
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (literal
+              (string))))))))
+
+================================================================================
+Django ifchanged with multiple args
+================================================================================
+
+{% ifchanged a b %}changed{% else %}same{% endifchanged %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_ifchanged_block
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier))))
+      (text)
+      (text))))
+
+================================================================================
+Django cycle with i18n values
+================================================================================
+
+{% cycle _("one") _("two") as choice %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_cycle_tag
+      (cycle_value
+        (filter_expression
+          (primary_expression
+            (literal
+              (i18n_string)))))
+      (cycle_value
+        (filter_expression
+          (primary_expression
+            (literal
+              (i18n_string)))))
+      (identifier))))
+
+================================================================================
+Django generic tag with as_alias (trans)
+================================================================================
+
+{% trans "Hello" as greeting %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_statement
+    (django_generic_tag
+      (generic_tag_name
+        (identifier))
+      (tag_argument
+        (as_alias
+          (filter_expression
+            (primary_expression
+              (literal
+                (string))))
+          (identifier))))))
+
+================================================================================
+Django verbatim mismatched suffix (suffix enforced)
+================================================================================
+
+{% verbatim foo %}content{% endverbatim bar %}
+
+--------------------------------------------------------------------------------
+
+; The endverbatim with wrong suffix doesn't close the block, so verbatim
+; consumes until EOF (empty content), then remaining is parsed separately
+
+(document
+  (django_statement
+    (django_verbatim_block))
+  (text)
+  (django_statement
+    (django_generic_tag
+      (generic_tag_name
+        (identifier))
+      (tag_argument
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier))))))))

@@ -36,6 +36,8 @@ module.exports = grammar({
     $.comment,
     // Django externals
     $._django_comment_content,
+    $._verbatim_start,
+    $._verbatim_block_content,
   ],
 
   conflicts: $ => [
@@ -51,6 +53,8 @@ module.exports = grammar({
     [$.cycle_value, $.literal],
     // Unpaired tags vs normal elements
     [$.normal_element, $._start_tag_only],
+    // Tag argument can be filter_expression standalone or as part of as_alias
+    [$.tag_argument, $.as_alias],
   ],
 
   rules: {
@@ -385,6 +389,11 @@ module.exports = grammar({
       $.django_widthratio_tag,
       $.django_templatetag_tag,
       $.django_debug_tag,
+      $.django_lorem_tag,
+      $.django_resetcycle_tag,
+      $.django_querystring_tag,
+      $.django_partialdef_block,
+      $.django_partial_tag,
       $.django_generic_block,
       $.django_generic_tag,
     ),
@@ -742,20 +751,15 @@ module.exports = grammar({
     // Django: Verbatim Block (HTML parsed, Django not parsed)
     // ==========================================================================
 
+    // Verbatim block using external scanner for exact suffix matching.
+    // The external scanner captures the suffix after "verbatim" and ensures
+    // {% endverbatim<suffix> %} matches exactly.
     django_verbatim_block: $ => seq(
       $._django_tag_open,
       optional($._django_inner_ws),
       'verbatim',
-      optional(seq($._django_inner_ws, $.identifier)),
-      optional($._django_inner_ws),
-      $._django_tag_close,
-      repeat($._html_node),
-      $._django_tag_open,
-      optional($._django_inner_ws),
-      'endverbatim',
-      optional(seq($._django_inner_ws, $.identifier)),
-      optional($._django_inner_ws),
-      $._django_tag_close,
+      $._verbatim_start,  // External: captures suffix, consumes up to and including %}
+      optional($._verbatim_block_content),  // External: scans until matching endverbatim
     ),
 
     // ==========================================================================
@@ -914,6 +918,83 @@ module.exports = grammar({
     ),
 
     // ==========================================================================
+    // Django: Lorem Tag
+    // ==========================================================================
+
+    django_lorem_tag: $ => seq(
+      $._django_tag_open,
+      optional($._django_inner_ws),
+      'lorem',
+      optional(seq($._django_inner_ws, $.filter_expression)),
+      optional(seq($._django_inner_ws, choice('w', 'p', 'b'))),
+      optional(seq($._django_inner_ws, 'random')),
+      optional($._django_inner_ws),
+      $._django_tag_close,
+    ),
+
+    // ==========================================================================
+    // Django: Resetcycle Tag
+    // ==========================================================================
+
+    django_resetcycle_tag: $ => seq(
+      $._django_tag_open,
+      optional($._django_inner_ws),
+      'resetcycle',
+      optional(seq($._django_inner_ws, $.identifier)),
+      optional($._django_inner_ws),
+      $._django_tag_close,
+    ),
+
+    // ==========================================================================
+    // Django: Querystring Tag
+    // ==========================================================================
+
+    django_querystring_tag: $ => seq(
+      $._django_tag_open,
+      optional($._django_inner_ws),
+      'querystring',
+      repeat(seq($._django_inner_ws, choice($.named_argument, $.filter_expression))),
+      optional($._django_inner_ws),
+      $._django_tag_close,
+    ),
+
+    // ==========================================================================
+    // Django: Partialdef Block
+    // ==========================================================================
+
+    django_partialdef_block: $ => seq(
+      $._django_tag_open,
+      optional($._django_inner_ws),
+      'partialdef',
+      $._django_inner_ws,
+      $.identifier,
+      optional(seq($._django_inner_ws, 'inline')),
+      optional($._django_inner_ws),
+      $._django_tag_close,
+      repeat($._node),
+      $._django_tag_open,
+      optional($._django_inner_ws),
+      'endpartialdef',
+      optional(seq($._django_inner_ws, $.identifier)),
+      optional($._django_inner_ws),
+      $._django_tag_close,
+    ),
+
+    // ==========================================================================
+    // Django: Partial Tag
+    // ==========================================================================
+
+    django_partial_tag: $ => seq(
+      $._django_tag_open,
+      optional($._django_inner_ws),
+      'partial',
+      $._django_inner_ws,
+      $.identifier,
+      optional($._django_inner_ws),
+      $._django_tag_close,
+    ),
+
+    // ==========================================================================
     // Django: Generic Block and Tag (fallback for unknown tags)
     // ==========================================================================
 
@@ -921,7 +1002,7 @@ module.exports = grammar({
       $._django_tag_open,
       optional($._django_inner_ws),
       field('name', $.generic_tag_name),
-      repeat(seq($._django_inner_ws, $._tag_argument)),
+      repeat(seq($._django_inner_ws, $.tag_argument)),
       optional($._django_inner_ws),
       $._django_tag_close,
       repeat($._node),
@@ -936,18 +1017,25 @@ module.exports = grammar({
       $._django_tag_open,
       optional($._django_inner_ws),
       $.generic_tag_name,
-      repeat(seq($._django_inner_ws, $._tag_argument)),
-      // Optional "as identifier" at the end (e.g., {% static "file.css" as asset_url %})
-      optional(seq($._django_inner_ws, 'as', $._django_inner_ws, $.identifier)),
+      repeat(seq($._django_inner_ws, $.tag_argument)),
       optional($._django_inner_ws),
       $._django_tag_close,
     )),
 
     generic_tag_name: $ => $.identifier,
 
-    _tag_argument: $ => choice(
+    tag_argument: $ => choice(
       $.assignment,
+      $.as_alias,
       $.filter_expression,
+    ),
+
+    as_alias: $ => seq(
+      $.filter_expression,
+      $._django_inner_ws,
+      'as',
+      $._django_inner_ws,
+      $.identifier,
     ),
 
     // ==========================================================================
@@ -977,8 +1065,10 @@ module.exports = grammar({
 
     lookup: $ => seq(
       $.identifier,
-      repeat(seq('.', choice($.identifier, /\d+/))),
+      repeat(seq('.', choice($.identifier, $.numeric_index))),
     ),
+
+    numeric_index: _ => /\d+/,
 
     filter_call: $ => prec.left(seq(
       alias($.identifier, $.filter_name),
