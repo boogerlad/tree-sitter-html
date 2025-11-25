@@ -1,5 +1,39 @@
 [
   {
+    "type": "and_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "not_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "assignment",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "attribute",
     "named": true,
     "fields": {},
@@ -31,7 +65,1151 @@
       "required": false,
       "types": [
         {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
           "type": "entity",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "comparison_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "comparison_operator",
+          "named": true
+        },
+        {
+          "type": "filter_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "comparison_operator",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "cycle_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_autoescape_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_block_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_block_open",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_endblock",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_block_comment",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "comment_text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_block_open",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_csrf_token_tag",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "django_cycle_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "cycle_value",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_debug_tag",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "django_elif",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "test_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_elif_branch",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_elif",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        },
+        {
+          "type": "unpaired_end_tag",
+          "named": true
+        },
+        {
+          "type": "unpaired_start_tag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_else",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "django_else_branch",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_else",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        },
+        {
+          "type": "unpaired_end_tag",
+          "named": true
+        },
+        {
+          "type": "unpaired_start_tag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_empty",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "django_empty_branch",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_empty",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        },
+        {
+          "type": "unpaired_end_tag",
+          "named": true
+        },
+        {
+          "type": "unpaired_start_tag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_endblock",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_endfor",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "django_endif",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "django_endwith",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "django_extends_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_filter_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "filter_chain",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_firstof_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_for_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_empty_branch",
+          "named": true
+        },
+        {
+          "type": "django_endfor",
+          "named": true
+        },
+        {
+          "type": "django_for_open",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        },
+        {
+          "type": "unpaired_end_tag",
+          "named": true
+        },
+        {
+          "type": "unpaired_start_tag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_for_open",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "loop_variables",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_generic_block",
+    "named": true,
+    "fields": {
+      "end_name": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "end",
+            "named": false
+          },
+          {
+            "type": "generic_tag_name",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "generic_tag_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "assignment",
+          "named": true
+        },
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_generic_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment",
+          "named": true
+        },
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "generic_tag_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_if_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_elif_branch",
+          "named": true
+        },
+        {
+          "type": "django_else_branch",
+          "named": true
+        },
+        {
+          "type": "django_endif",
+          "named": true
+        },
+        {
+          "type": "django_if_open",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        },
+        {
+          "type": "unpaired_end_tag",
+          "named": true
+        },
+        {
+          "type": "unpaired_start_tag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_if_open",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "test_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_ifchanged_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_include_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment",
+          "named": true
+        },
+        {
+          "type": "filter_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_interpolation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_load_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "library_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_now_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_regroup_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "lookup",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_spaceless_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "django_autoescape_block",
+          "named": true
+        },
+        {
+          "type": "django_block_block",
+          "named": true
+        },
+        {
+          "type": "django_csrf_token_tag",
+          "named": true
+        },
+        {
+          "type": "django_cycle_tag",
+          "named": true
+        },
+        {
+          "type": "django_debug_tag",
+          "named": true
+        },
+        {
+          "type": "django_extends_tag",
+          "named": true
+        },
+        {
+          "type": "django_filter_block",
+          "named": true
+        },
+        {
+          "type": "django_firstof_tag",
+          "named": true
+        },
+        {
+          "type": "django_for_block",
+          "named": true
+        },
+        {
+          "type": "django_generic_block",
+          "named": true
+        },
+        {
+          "type": "django_generic_tag",
+          "named": true
+        },
+        {
+          "type": "django_if_block",
+          "named": true
+        },
+        {
+          "type": "django_ifchanged_block",
+          "named": true
+        },
+        {
+          "type": "django_include_tag",
+          "named": true
+        },
+        {
+          "type": "django_load_tag",
+          "named": true
+        },
+        {
+          "type": "django_now_tag",
+          "named": true
+        },
+        {
+          "type": "django_regroup_tag",
+          "named": true
+        },
+        {
+          "type": "django_spaceless_block",
+          "named": true
+        },
+        {
+          "type": "django_templatetag_tag",
+          "named": true
+        },
+        {
+          "type": "django_url_tag",
+          "named": true
+        },
+        {
+          "type": "django_verbatim_block",
+          "named": true
+        },
+        {
+          "type": "django_widthratio_tag",
+          "named": true
+        },
+        {
+          "type": "django_with_block",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_templatetag_tag",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "django_url_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "named_argument",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_verbatim_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_widthratio_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_with_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_endwith",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "django_with_open",
+          "named": true
+        },
+        {
+          "type": "doctype",
+          "named": true
+        },
+        {
+          "type": "element",
+          "named": true
+        },
+        {
+          "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "django_with_open",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "with_assignments",
+          "named": true
+        },
+        {
+          "type": "with_legacy",
           "named": true
         }
       ]
@@ -51,6 +1229,22 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
         {
           "type": "doctype",
           "named": true
@@ -140,6 +1334,78 @@
     }
   },
   {
+    "type": "filter_argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "literal",
+          "named": true
+        },
+        {
+          "type": "lookup",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "filter_call",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_argument",
+          "named": true
+        },
+        {
+          "type": "filter_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "filter_chain",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_call",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "filter_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_call",
+          "named": true
+        },
+        {
+          "type": "primary_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "foreign_element",
     "named": true,
     "fields": {},
@@ -149,6 +1415,22 @@
       "types": [
         {
           "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
           "named": true
         },
         {
@@ -175,6 +1457,93 @@
     }
   },
   {
+    "type": "generic_tag_name",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "literal",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "i18n_string",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "lookup",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "loop_variables",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "named_argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "normal_element",
     "named": true,
     "fields": {},
@@ -184,6 +1553,22 @@
       "types": [
         {
           "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "django_block_comment",
+          "named": true
+        },
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
           "named": true
         },
         {
@@ -204,6 +1589,40 @@
         },
         {
           "type": "text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "not_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "comparison_expression",
+          "named": true
+        },
+        {
+          "type": "not_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "or_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "and_expression",
           "named": true
         }
       ]
@@ -229,6 +1648,25 @@
     }
   },
   {
+    "type": "primary_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "literal",
+          "named": true
+        },
+        {
+          "type": "lookup",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "quoted_attribute_value",
     "named": true,
     "fields": {},
@@ -241,7 +1679,42 @@
           "named": true
         },
         {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
           "type": "entity",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "raw_text",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "raw_text",
           "named": true
         }
       ]
@@ -255,6 +1728,18 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "django_comment",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
         {
           "type": "end_tag",
           "named": true
@@ -306,11 +1791,24 @@
           "named": true
         },
         {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
           "type": "tag_name",
           "named": true
         }
       ]
     }
+  },
+  {
+    "type": "string",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "style_element",
@@ -336,6 +1834,21 @@
     }
   },
   {
+    "type": "test_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "or_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "text",
     "named": true,
     "fields": {},
@@ -345,6 +1858,48 @@
       "types": [
         {
           "type": "entity",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "unpaired_end_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "tag_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "unpaired_start_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
+          "type": "tag_name",
           "named": true
         }
       ]
@@ -363,6 +1918,14 @@
           "named": true
         },
         {
+          "type": "django_interpolation",
+          "named": true
+        },
+        {
+          "type": "django_statement",
+          "named": true
+        },
+        {
           "type": "tag_name",
           "named": true
         }
@@ -370,7 +1933,49 @@
     }
   },
   {
+    "type": "with_assignments",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "with_legacy",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "filter_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "!=",
+    "named": false
+  },
+  {
     "type": "\"",
+    "named": false
+  },
+  {
+    "type": "%}",
     "named": false
   },
   {
@@ -378,7 +1983,19 @@
     "named": false
   },
   {
+    "type": ",",
+    "named": false
+  },
+  {
+    "type": ".",
+    "named": false
+  },
+  {
     "type": "/>",
+    "named": false
+  },
+  {
+    "type": ":",
     "named": false
   },
   {
@@ -394,7 +2011,15 @@
     "named": false
   },
   {
+    "type": "<=",
+    "named": false
+  },
+  {
     "type": "=",
+    "named": false
+  },
+  {
+    "type": "==",
     "named": false
   },
   {
@@ -402,8 +2027,53 @@
     "named": false
   },
   {
+    "type": ">=",
+    "named": false
+  },
+  {
+    "type": "and",
+    "named": false
+  },
+  {
+    "type": "as",
+    "named": false
+  },
+  {
     "type": "attribute_name",
     "named": true
+  },
+  {
+    "type": "autoescape",
+    "named": false
+  },
+  {
+    "type": "block",
+    "named": false
+  },
+  {
+    "type": "by",
+    "named": false
+  },
+  {
+    "type": "closeblock",
+    "named": false
+  },
+  {
+    "type": "closebrace",
+    "named": false
+  },
+  {
+    "type": "closecomment",
+    "named": false
+  },
+  {
+    "type": "closevariable",
+    "named": false
+  },
+  {
+    "type": "comment",
+    "named": false,
+    "extra": true
   },
   {
     "type": "comment",
@@ -411,7 +2081,79 @@
     "extra": true
   },
   {
+    "type": "comment_text",
+    "named": true
+  },
+  {
+    "type": "csrf_token",
+    "named": false
+  },
+  {
+    "type": "cycle",
+    "named": false
+  },
+  {
+    "type": "debug",
+    "named": false
+  },
+  {
+    "type": "django_comment",
+    "named": true
+  },
+  {
     "type": "doctype",
+    "named": false
+  },
+  {
+    "type": "elif",
+    "named": false
+  },
+  {
+    "type": "else",
+    "named": false
+  },
+  {
+    "type": "empty",
+    "named": false
+  },
+  {
+    "type": "end",
+    "named": false
+  },
+  {
+    "type": "endautoescape",
+    "named": false
+  },
+  {
+    "type": "endblock",
+    "named": false
+  },
+  {
+    "type": "endfilter",
+    "named": false
+  },
+  {
+    "type": "endfor",
+    "named": false
+  },
+  {
+    "type": "endif",
+    "named": false
+  },
+  {
+    "type": "endifchanged",
+    "named": false
+  },
+  {
+    "type": "endspaceless",
+    "named": false
+  },
+  {
+    "type": "endverbatim",
+    "named": false
+  },
+  {
+    "type": "endwith",
     "named": false
   },
   {
@@ -423,11 +2165,107 @@
     "named": true
   },
   {
-    "type": "plaintext_text",
+    "type": "extends",
+    "named": false
+  },
+  {
+    "type": "filter",
+    "named": false
+  },
+  {
+    "type": "filter_name",
     "named": true
   },
   {
-    "type": "raw_text",
+    "type": "firstof",
+    "named": false
+  },
+  {
+    "type": "for",
+    "named": false
+  },
+  {
+    "type": "from",
+    "named": false
+  },
+  {
+    "type": "i18n_string",
+    "named": true
+  },
+  {
+    "type": "identifier",
+    "named": true
+  },
+  {
+    "type": "if",
+    "named": false
+  },
+  {
+    "type": "ifchanged",
+    "named": false
+  },
+  {
+    "type": "in",
+    "named": false
+  },
+  {
+    "type": "include",
+    "named": false
+  },
+  {
+    "type": "is",
+    "named": false
+  },
+  {
+    "type": "library_name",
+    "named": true
+  },
+  {
+    "type": "load",
+    "named": false
+  },
+  {
+    "type": "not",
+    "named": false
+  },
+  {
+    "type": "now",
+    "named": false
+  },
+  {
+    "type": "number",
+    "named": true
+  },
+  {
+    "type": "off",
+    "named": false
+  },
+  {
+    "type": "on",
+    "named": false
+  },
+  {
+    "type": "only",
+    "named": false
+  },
+  {
+    "type": "openblock",
+    "named": false
+  },
+  {
+    "type": "openbrace",
+    "named": false
+  },
+  {
+    "type": "opencomment",
+    "named": false
+  },
+  {
+    "type": "openvariable",
+    "named": false
+  },
+  {
+    "type": "plaintext_text",
     "named": true
   },
   {
@@ -435,7 +2273,59 @@
     "named": true
   },
   {
+    "type": "regroup",
+    "named": false
+  },
+  {
+    "type": "reversed",
+    "named": false
+  },
+  {
+    "type": "silent",
+    "named": false
+  },
+  {
+    "type": "spaceless",
+    "named": false
+  },
+  {
     "type": "tag_name",
     "named": true
+  },
+  {
+    "type": "templatetag",
+    "named": false
+  },
+  {
+    "type": "url",
+    "named": false
+  },
+  {
+    "type": "verbatim",
+    "named": false
+  },
+  {
+    "type": "widthratio",
+    "named": false
+  },
+  {
+    "type": "with",
+    "named": false
+  },
+  {
+    "type": "{%",
+    "named": false
+  },
+  {
+    "type": "{{",
+    "named": false
+  },
+  {
+    "type": "|",
+    "named": false
+  },
+  {
+    "type": "}}",
+    "named": false
   }
 ]

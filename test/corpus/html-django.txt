@@ -1,0 +1,1094 @@
+================================================================================
+Element Split by Django Conditionals (ported from htmljinja2)
+================================================================================
+
+<div></div>
+
+{% if condition %}
+<div>
+{% endif %}
+    hello
+{% if condition %}
+</div>
+{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (end_tag
+        (tag_name))))
+  (django_if_block
+    (if_open
+      (test_expression
+        (or_expression
+          (and_expression
+            (not_expression
+              (comparison_expression
+                (comparison_operand
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier)))))))))))
+    (body
+      (single_element
+        (start_tag
+          (tag_name))))
+    (if_tail
+      (endif_tag)))
+  (text)
+  (django_if_block
+    (if_open
+      (test_expression
+        (or_expression
+          (and_expression
+            (not_expression
+              (comparison_expression
+                (comparison_operand
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier)))))))))))
+    (body
+      (single_element
+        (end_tag
+          (tag_name))))
+    (if_tail
+      (endif_tag))))
+
+================================================================================
+Real World Template (ported from htmljinja2)
+================================================================================
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>My Webpage</title>
+    </head>
+    <body>
+        <ul id="{{ v }}" class="{{ v }}">
+            {% for item in navigation %}
+            <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+            {% endfor %}
+        </ul>
+        <h1>{{ v }}</h1>
+
+        {# a comment #}
+
+        {% if show_div %}
+        <div>
+        {% endif %}
+            hello
+        {% if show_div %}
+        </div>
+        {% endif %}
+
+    </body>
+</html>
+
+--------------------------------------------------------------------------------
+
+(document
+  (doctype)
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value)))
+      (element
+        (normal_element
+          (tag_name)
+          (element
+            (rcdata_element
+              (start_tag
+                (tag_name))
+              (rcdata_text)
+              (end_tag
+                (tag_name))))
+          (end_tag
+            (tag_name))))
+      (element
+        (normal_element
+          (tag_name)
+          (element
+            (normal_element
+              (tag_name)
+              (attribute
+                (attribute_name)
+                (quoted_attribute_value
+                  (attribute_value
+                    (django_interpolation
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier))))))))
+              (attribute
+                (attribute_name)
+                (quoted_attribute_value
+                  (attribute_value
+                    (django_interpolation
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier))))))))
+              (django_for_block
+                (loop_targets
+                  (loop_target))
+                (filter_expression
+                  (primary_expression
+                    (lookup
+                      (identifier))))
+                (element
+                  (normal_element
+                    (tag_name)
+                    (element
+                      (normal_element
+                        (tag_name)
+                        (attribute
+                          (attribute_name)
+                          (quoted_attribute_value
+                            (attribute_value
+                              (django_interpolation
+                                (filter_expression
+                                  (primary_expression
+                                    (lookup
+                                      (identifier)
+                                      (identifier))))))))
+                        (django_interpolation
+                          (filter_expression
+                            (primary_expression
+                              (lookup
+                                (identifier)
+                                (identifier)))))
+                        (end_tag
+                          (tag_name))))
+                    (end_tag
+                      (tag_name)))))
+              (end_tag
+                (tag_name))))
+          (element
+            (normal_element
+              (tag_name)
+              (django_interpolation
+                (filter_expression
+                  (primary_expression
+                    (lookup
+                      (identifier)))))
+              (end_tag
+                (tag_name))))
+          (django_line_comment)
+          (django_if_block
+            (if_open
+              (test_expression
+                (or_expression
+                  (and_expression
+                    (not_expression
+                      (comparison_expression
+                        (comparison_operand
+                          (filter_expression
+                            (primary_expression
+                              (lookup
+                                (identifier)))))))))))
+            (body
+              (single_element
+                (start_tag
+                  (tag_name))))
+            (if_tail
+              (endif_tag)))
+          (text)
+          (django_if_block
+            (if_open
+              (test_expression
+                (or_expression
+                  (and_expression
+                    (not_expression
+                      (comparison_expression
+                        (comparison_operand
+                          (filter_expression
+                            (primary_expression
+                              (lookup
+                                (identifier)))))))))))
+            (body
+              (single_element
+                (end_tag
+                  (tag_name))))
+            (if_tail
+              (endif_tag)))
+          (end_tag
+            (tag_name))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django interpolation in HTML attributes
+================================================================================
+
+<div id="{{ my_id }}" class="{{ css_class }}">content</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier))))))))
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier))))))))
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django interpolation mixed with text in attributes
+================================================================================
+
+<a href="/users/{{ user.id }}/profile">Link</a>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)
+                    (identifier))))))))
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django for loop around HTML elements
+================================================================================
+
+<ul>
+{% for item in items %}
+<li>{{ item.name }}</li>
+{% endfor %}
+</ul>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_for_block
+        (loop_targets
+          (loop_target))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier))))
+        (element
+          (normal_element
+            (tag_name)
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)
+                    (identifier)))))
+            (end_tag
+              (tag_name)))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django inside script tag
+================================================================================
+
+<script>
+var config = {{ config_json|safe }};
+</script>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (script_element
+      (start_tag
+        (tag_name))
+      (raw_text)
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))
+          (filter_call
+            (filter_name
+              (identifier)))))
+      (raw_text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django inside style tag
+================================================================================
+
+<style>
+.header { background-color: {{ theme.header_color }}; }
+</style>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (style_element
+      (start_tag
+        (tag_name))
+      (raw_text)
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)
+              (identifier)))))
+      (raw_text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django if-else with different HTML structures
+================================================================================
+
+{% if is_admin %}
+<div class="admin-panel">
+    <button>Delete</button>
+</div>
+{% else %}
+<span>View only</span>
+{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_if_block
+    (if_open
+      (test_expression
+        (or_expression
+          (and_expression
+            (not_expression
+              (comparison_expression
+                (comparison_operand
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier)))))))))))
+    (body
+      (element
+        (normal_element
+          (tag_name)
+          (attribute
+            (attribute_name)
+            (quoted_attribute_value
+              (attribute_value)))
+          (element
+            (normal_element
+              (tag_name)
+              (text)
+              (end_tag
+                (tag_name))))
+          (end_tag
+            (tag_name)))))
+    (if_tail
+      (else_tag)
+      (body
+        (element
+          (normal_element
+            (tag_name)
+            (text)
+            (end_tag
+              (tag_name)))))
+      (endif_tag))))
+
+================================================================================
+Nested Django blocks in HTML
+================================================================================
+
+<div>
+{% if items %}
+    {% for item in items %}
+    <span>{{ item }}</span>
+    {% endfor %}
+{% endif %}
+</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (body
+          (django_for_block
+            (loop_targets
+              (loop_target))
+            (filter_expression
+              (primary_expression
+                (lookup
+                  (identifier))))
+            (element
+              (normal_element
+                (tag_name)
+                (django_interpolation
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier)))))
+                (end_tag
+                  (tag_name))))))
+        (if_tail
+          (endif_tag)))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django extends with blocks in HTML
+================================================================================
+
+{% extends "base.html" %}
+
+{% block title %}Page Title{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ page_title }}</h1>
+</div>
+{% endblock %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_extends_tag
+    (filter_expression
+      (primary_expression
+        (literal
+          (string)))))
+  (django_block_block
+    (identifier)
+    (text))
+  (django_block_block
+    (identifier)
+    (element
+      (normal_element
+        (tag_name)
+        (attribute
+          (attribute_name)
+          (quoted_attribute_value
+            (attribute_value)))
+        (element
+          (normal_element
+            (tag_name)
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)))))
+            (end_tag
+              (tag_name))))
+        (end_tag
+          (tag_name))))))
+
+================================================================================
+Django include inside HTML
+================================================================================
+
+<nav>
+    {% include "partials/menu.html" %}
+</nav>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_include_tag
+        (filter_expression
+          (primary_expression
+            (literal
+              (string)))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django with block wrapping HTML
+================================================================================
+
+{% with total=items|length %}
+<p>Total items: {{ total }}</p>
+{% endwith %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_with_block
+    (with_assignments
+      (assignment
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))
+          (filter_call
+            (filter_name
+              (identifier))))))
+    (element
+      (normal_element
+        (tag_name)
+        (text)
+        (django_interpolation
+          (filter_expression
+            (primary_expression
+              (lookup
+                (identifier)))))
+        (end_tag
+          (tag_name))))))
+
+================================================================================
+Django comment inside HTML
+================================================================================
+
+<div>
+    {# TODO: add more content #}
+    <span>visible</span>
+</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_line_comment)
+      (element
+        (normal_element
+          (tag_name)
+          (text)
+          (end_tag
+            (tag_name))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django block comment inside HTML
+================================================================================
+
+<div>
+{% comment %}
+    <span>This is hidden</span>
+    {{ variable }}
+{% endcomment %}
+</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_block_comment)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+HTML form with Django
+================================================================================
+
+<form method="post" action="{% url 'submit' %}">
+    {% csrf_token %}
+    <input type="text" name="field" value="{{ initial_value }}">
+    <button type="submit">Submit</button>
+</form>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value)))
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_url_tag
+              (filter_expression
+                (primary_expression
+                  (literal
+                    (string))))))))
+      (django_csrf_token_tag)
+      (element
+        (void_element
+          (tag_name)
+          (attribute
+            (attribute_name)
+            (quoted_attribute_value
+              (attribute_value)))
+          (attribute
+            (attribute_name)
+            (quoted_attribute_value
+              (attribute_value)))
+          (attribute
+            (attribute_name)
+            (quoted_attribute_value
+              (attribute_value
+                (django_interpolation
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier))))))))))
+      (element
+        (normal_element
+          (tag_name)
+          (attribute
+            (attribute_name)
+            (quoted_attribute_value
+              (attribute_value)))
+          (text)
+          (end_tag
+            (tag_name))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Complex filter in attribute
+================================================================================
+
+<img src="{{ image.url|default:'/static/placeholder.png' }}" alt="{{ image.alt|default:'No image' }}">
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (void_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)
+                    (identifier)))
+                (filter_call
+                  (filter_name
+                    (identifier))
+                  (filter_argument
+                    (literal
+                      (string)))))))))
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)
+                    (identifier)))
+                (filter_call
+                  (filter_name
+                    (identifier))
+                  (filter_argument
+                    (literal
+                      (string))))))))))))
+
+================================================================================
+Django static tag in HTML
+================================================================================
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<script src="{% static 'js/app.js' %}"></script>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (void_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value)))
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_generic_tag
+              (tag_name)
+              (tag_argument
+                (filter_expression
+                  (primary_expression
+                    (literal
+                      (string)))))))))))
+  (element
+    (script_element
+      (start_tag
+        (tag_name)
+        (attribute
+          (attribute_name)
+          (quoted_attribute_value
+            (attribute_value
+              (django_generic_tag
+                (tag_name)
+                (tag_argument
+                  (filter_expression
+                    (primary_expression
+                      (literal
+                        (string))))))))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+SVG with Django
+================================================================================
+
+<svg viewBox="0 0 {{ width }} {{ height }}">
+    {% for point in points %}
+    <circle cx="{{ point.x }}" cy="{{ point.y }}" r="5"/>
+    {% endfor %}
+</svg>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (foreign_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)))))
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier))))))))
+      (django_for_block
+        (loop_targets
+          (loop_target))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier))))
+        (element
+          (foreign_element
+            (tag_name)
+            (attribute
+              (attribute_name)
+              (quoted_attribute_value
+                (attribute_value
+                  (django_interpolation
+                    (filter_expression
+                      (primary_expression
+                        (lookup
+                          (identifier)
+                          (identifier))))))))
+            (attribute
+              (attribute_name)
+              (quoted_attribute_value
+                (attribute_value
+                  (django_interpolation
+                    (filter_expression
+                      (primary_expression
+                        (lookup
+                          (identifier)
+                          (identifier))))))))
+            (attribute
+              (attribute_name)
+              (quoted_attribute_value
+                (attribute_value))))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Table with Django loop
+================================================================================
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr class="{% cycle 'odd' 'even' %}">
+            <td>{{ row.name }}</td>
+            <td>{{ row.value }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2">No data</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (element
+        (normal_element
+          (tag_name)
+          (element
+            (normal_element
+              (tag_name)
+              (element
+                (normal_element
+                  (tag_name)
+                  (text)
+                  (end_tag
+                    (tag_name))))
+              (element
+                (normal_element
+                  (tag_name)
+                  (text)
+                  (end_tag
+                    (tag_name))))
+              (end_tag
+                (tag_name))))
+          (end_tag
+            (tag_name))))
+      (element
+        (normal_element
+          (tag_name)
+          (django_for_block
+            (loop_targets
+              (loop_target))
+            (filter_expression
+              (primary_expression
+                (lookup
+                  (identifier))))
+            (element
+              (normal_element
+                (tag_name)
+                (attribute
+                  (attribute_name)
+                  (quoted_attribute_value
+                    (attribute_value
+                      (django_cycle_tag
+                        (cycle_values_no_alias
+                          (cycle_value
+                            (string))
+                          (cycle_value
+                            (string)))))))
+                (element
+                  (normal_element
+                    (tag_name)
+                    (django_interpolation
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)
+                            (identifier)))))
+                    (end_tag
+                      (tag_name))))
+                (element
+                  (normal_element
+                    (tag_name)
+                    (django_interpolation
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)
+                            (identifier)))))
+                    (end_tag
+                      (tag_name))))
+                (end_tag
+                  (tag_name))))
+            (element
+              (normal_element
+                (tag_name)
+                (element
+                  (normal_element
+                    (tag_name)
+                    (attribute
+                      (attribute_name)
+                      (quoted_attribute_value
+                        (attribute_value)))
+                    (text)
+                    (end_tag
+                      (tag_name))))
+                (end_tag
+                  (tag_name)))))
+          (end_tag
+            (tag_name))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Single curly brace in text (not Django)
+================================================================================
+
+<p>JSON: { "key": "value" }</p>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Django verbatim with HTML
+================================================================================
+
+<div>
+{% verbatim %}
+<span>{{ this_is_not_parsed }}</span>
+{% endverbatim %}
+</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_verbatim_block)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+Deeply nested Django in HTML
+================================================================================
+
+<div>
+    {% if level1 %}
+    <section>
+        {% for item in items %}
+        <article>
+            {% if item.published %}
+            <h2>{{ item.title }}</h2>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </section>
+    {% endif %}
+</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (body
+          (element
+            (normal_element
+              (tag_name)
+              (django_for_block
+                (loop_targets
+                  (loop_target))
+                (filter_expression
+                  (primary_expression
+                    (lookup
+                      (identifier))))
+                (element
+                  (normal_element
+                    (tag_name)
+                    (django_if_block
+                      (if_open
+                        (test_expression
+                          (or_expression
+                            (and_expression
+                              (not_expression
+                                (comparison_expression
+                                  (comparison_operand
+                                    (filter_expression
+                                      (primary_expression
+                                        (lookup
+                                          (identifier)
+                                          (identifier)))))))))))
+                      (body
+                        (element
+                          (normal_element
+                            (tag_name)
+                            (django_interpolation
+                              (filter_expression
+                                (primary_expression
+                                  (lookup
+                                    (identifier)
+                                    (identifier)))))
+                            (end_tag
+                              (tag_name)))))
+                      (if_tail
+                        (endif_tag)))
+                    (end_tag
+                      (tag_name)))))
+              (end_tag
+                (tag_name)))))
+        (if_tail
+          (endif_tag)))
+      (end_tag
+        (tag_name)))))

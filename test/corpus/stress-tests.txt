@@ -1,0 +1,786 @@
+================================================================================
+STRESS TEST: Django tag as entire attribute value
+================================================================================
+
+<a href="{% url 'home' %}">Home</a>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_url_tag
+              (filter_expression
+                (primary_expression
+                  (literal
+                    (string))))))))
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Multiple Django expressions in one attribute
+================================================================================
+
+<div class="{{ base_class }} {{ modifier_class }} {% if active %}active{% endif %}">
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)))))
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)))))
+            (django_if_block
+              (if_open
+                (test_expression
+                  (or_expression
+                    (and_expression
+                      (not_expression
+                        (comparison_expression
+                          (comparison_operand
+                            (filter_expression
+                              (primary_expression
+                                (lookup
+                                  (identifier)))))))))))
+              (if_tail
+                (endif_tag)))))))))
+
+================================================================================
+STRESS TEST: Django as unquoted attribute value
+================================================================================
+
+<input type=text value={{ default_value }}>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (void_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (attribute_value))
+      (attribute
+        (attribute_name)
+        (attribute_value
+          (django_interpolation
+            (filter_expression
+              (primary_expression
+                (lookup
+                  (identifier))))))))))
+
+================================================================================
+STRESS TEST: Django as attribute name
+================================================================================
+
+<div {{ attrs }}>content</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name
+          (django_interpolation
+            (filter_expression
+              (primary_expression
+                (lookup
+                  (identifier)))))))
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Conditional attribute with Django
+================================================================================
+
+<button {% if disabled %}disabled{% endif %} class="btn">Click</button>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name
+          (django_if_block
+            (if_open
+              (test_expression
+                (or_expression
+                  (and_expression
+                    (not_expression
+                      (comparison_expression
+                        (comparison_operand
+                          (filter_expression
+                            (primary_expression
+                              (lookup
+                                (identifier)))))))))))
+            (if_tail
+              (endif_tag)))))
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value)))
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Script with inline Django JSON
+================================================================================
+
+<script type="application/json">
+{
+    "user": "{{ user.username|escapejs }}",
+    "items": [{% for item in items %}"{{ item }}"{% if not forloop.last %},{% endif %}{% endfor %}]
+}
+</script>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (script_element
+      (start_tag
+        (tag_name)
+        (attribute
+          (attribute_name)
+          (quoted_attribute_value
+            (attribute_value))))
+      (raw_text)
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)
+              (identifier)))
+          (filter_call
+            (filter_name
+              (identifier)))))
+      (raw_text)
+      (django_for_block
+        (loop_targets
+          (loop_target))
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier))))
+        (raw_text)
+        (django_interpolation
+          (filter_expression
+            (primary_expression
+              (lookup
+                (identifier)))))
+        (raw_text)
+        (django_if_block
+          (if_open
+            (test_expression
+              (or_expression
+                (and_expression
+                  (not_expression
+                    (comparison_expression
+                      (comparison_operand
+                        (filter_expression
+                          (primary_expression
+                            (lookup
+                              (identifier)))))))))))
+          (if_tail
+            (endif_tag))))
+      (raw_text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Style with Django CSS variables
+================================================================================
+
+<style>
+:root {
+    --primary-color: {{ theme.primary }};
+    --secondary-color: {{ theme.secondary }};
+}
+{% if dark_mode %}
+body { background: #000; color: #fff; }
+{% endif %}
+</style>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (style_element
+      (start_tag
+        (tag_name))
+      (raw_text)
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)
+              (identifier)))))
+      (raw_text)
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)
+              (identifier)))))
+      (raw_text)
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (raw_text)
+        (if_tail
+          (endif_tag)))
+      (raw_text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Adjacent Django tags without whitespace
+================================================================================
+
+<p>{% if a %}A{% endif %}{% if b %}B{% endif %}{% if c %}C{% endif %}</p>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (if_tail
+          (endif_tag)))
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (if_tail
+          (endif_tag)))
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (if_tail
+          (endif_tag)))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: HTML entity next to Django interpolation
+================================================================================
+
+<p>&copy; {{ year }} &mdash; {{ company }}</p>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (text
+        (entity))
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (text
+        (entity))
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Void element followed by Django
+================================================================================
+
+<br>{{ message }}<br>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (void_element
+      (tag_name)))
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)))))
+  (element
+    (void_element
+      (tag_name))))
+
+================================================================================
+STRESS TEST: Django in title (RCDATA element)
+================================================================================
+
+<title>{{ page_title }} - {{ site_name }}</title>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (rcdata_element
+      (start_tag
+        (tag_name))
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (rcdata_text)
+      (django_interpolation
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier)))))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Django in textarea (RCDATA element)
+================================================================================
+
+<textarea>{% if default %}{{ default_text }}{% endif %}</textarea>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (rcdata_element
+      (start_tag
+        (tag_name))
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (body
+          (django_interpolation
+            (filter_expression
+              (primary_expression
+                (lookup
+                  (identifier))))))
+        (if_tail
+          (endif_tag)))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Unbalanced tags in if-else branches
+================================================================================
+
+{% if use_table %}
+<table>
+    <tr><td>
+{% else %}
+<ul>
+    <li>
+{% endif %}
+        {{ content }}
+{% if use_table %}
+    </td></tr>
+</table>
+{% else %}
+    </li>
+</ul>
+{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_if_block
+    (if_open
+      (test_expression
+        (or_expression
+          (and_expression
+            (not_expression
+              (comparison_expression
+                (comparison_operand
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier)))))))))))
+    (body
+      (single_element
+        (start_tag
+          (tag_name)))
+      (single_element
+        (start_tag
+          (tag_name)))
+      (single_element
+        (start_tag
+          (tag_name))))
+    (if_tail
+      (else_tag)
+      (body
+        (single_element
+          (start_tag
+            (tag_name)))
+        (single_element
+          (start_tag
+            (tag_name))))
+      (endif_tag)))
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)))))
+  (django_if_block
+    (if_open
+      (test_expression
+        (or_expression
+          (and_expression
+            (not_expression
+              (comparison_expression
+                (comparison_operand
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier)))))))))))
+    (body
+      (single_element
+        (end_tag
+          (tag_name)))
+      (single_element
+        (end_tag
+          (tag_name)))
+      (single_element
+        (end_tag
+          (tag_name))))
+    (if_tail
+      (else_tag)
+      (body
+        (single_element
+          (end_tag
+            (tag_name)))
+        (single_element
+          (end_tag
+            (tag_name))))
+      (endif_tag))))
+
+================================================================================
+STRESS TEST: Complex boolean expression in if
+================================================================================
+
+<div>{% if a and b or not c and d == e %}yes{% endif %}</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier))))))))
+              (and_expression
+                (not_expression
+                  (not_expression
+                    (comparison_expression
+                      (comparison_operand
+                        (filter_expression
+                          (primary_expression
+                            (lookup
+                              (identifier))))))))
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))
+                    (comparison_operator)
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (if_tail
+          (endif_tag)))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Long filter chain in attribute
+================================================================================
+
+<span title="{{ value|lower|truncatewords:5|default:'N/A'|escape }}">hover</span>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier)))
+                (filter_call
+                  (filter_name
+                    (identifier)))
+                (filter_call
+                  (filter_name
+                    (identifier))
+                  (filter_argument
+                    (literal
+                      (number))))
+                (filter_call
+                  (filter_name
+                    (identifier))
+                  (filter_argument
+                    (literal
+                      (string))))
+                (filter_call
+                  (filter_name
+                    (identifier))))))))
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: HTML comment vs Django comment
+================================================================================
+
+<!-- HTML comment -->
+{# Django comment #}
+{% comment %}Block Django comment{% endcomment %}
+<div>content</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (comment)
+  (django_line_comment)
+  (django_block_comment)
+  (element
+    (normal_element
+      (tag_name)
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Empty Django tag in attribute
+================================================================================
+
+<div data-value="{{ }}">empty</div>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (attribute
+        (attribute_name)
+        (quoted_attribute_value
+          (attribute_value
+            (django_interpolation))))
+      (text)
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Django with trimming whitespace control
+================================================================================
+
+<p>{%- if true -%}trimmed{%- endif -%}</p>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (django_if_block
+        (if_open
+          (test_expression
+            (or_expression
+              (and_expression
+                (not_expression
+                  (comparison_expression
+                    (comparison_operand
+                      (filter_expression
+                        (primary_expression
+                          (lookup
+                            (identifier)))))))))))
+        (if_tail
+          (endif_tag)))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Implicit end tag with Django
+================================================================================
+
+<ul>
+  <li>{% for x in items %}{{ x }}
+  <li>{% endfor %}static
+</ul>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (normal_element
+      (tag_name)
+      (element
+        (normal_element
+          (tag_name)
+          (django_for_block
+            (loop_targets
+              (loop_target))
+            (filter_expression
+              (primary_expression
+                (lookup
+                  (identifier))))
+            (django_interpolation
+              (filter_expression
+                (primary_expression
+                  (lookup
+                    (identifier))))))))
+      (element
+        (normal_element
+          (tag_name)
+          (text)))
+      (end_tag
+        (tag_name)))))
+
+================================================================================
+STRESS TEST: Foreign element with Django
+================================================================================
+
+<math>
+  <mfrac>
+    <mi>{{ numerator }}</mi>
+    <mi>{{ denominator }}</mi>
+  </mfrac>
+</math>
+
+--------------------------------------------------------------------------------
+
+(document
+  (element
+    (foreign_element
+      (tag_name)
+      (element
+        (foreign_element
+          (tag_name)
+          (element
+            (foreign_element
+              (tag_name)
+              (django_interpolation
+                (filter_expression
+                  (primary_expression
+                    (lookup
+                      (identifier)))))
+              (end_tag
+                (tag_name))))
+          (element
+            (foreign_element
+              (tag_name)
+              (django_interpolation
+                (filter_expression
+                  (primary_expression
+                    (lookup
+                      (identifier)))))
+              (end_tag
+                (tag_name))))
+          (end_tag
+            (tag_name))))
+      (end_tag
+        (tag_name)))))

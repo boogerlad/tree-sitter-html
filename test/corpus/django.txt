@@ -1,0 +1,380 @@
+================================================================================
+Django interpolation
+================================================================================
+
+{{ foo }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier))))))
+
+================================================================================
+Django filter pipelines
+================================================================================
+
+{{ foo.bar|lower:"x"|default:42 }}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_interpolation
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier)
+          (identifier)))
+      (filter_call
+        (filter_name
+          (identifier))
+        (filter_argument
+          (literal
+            (string))))
+      (filter_call
+        (filter_name
+          (identifier))
+        (filter_argument
+          (literal
+            (number)))))))
+
+================================================================================
+Django line comment
+================================================================================
+
+{# This is a comment #}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_line_comment))
+
+================================================================================
+Django block comment
+================================================================================
+
+{% comment %}
+ignored content {{ var }}
+{% endcomment %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_block_comment))
+
+================================================================================
+Django if statement
+================================================================================
+
+{% if condition %}yes{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_if_block
+    (if_open
+      (test_expression
+        (or_expression
+          (and_expression
+            (not_expression
+              (comparison_expression
+                (comparison_operand
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier)))))))))))
+    (if_tail
+      (endif_tag))))
+
+================================================================================
+Django if-elif-else
+================================================================================
+
+{% if a %}A{% elif b %}B{% else %}C{% endif %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_if_block
+    (if_open
+      (test_expression
+        (or_expression
+          (and_expression
+            (not_expression
+              (comparison_expression
+                (comparison_operand
+                  (filter_expression
+                    (primary_expression
+                      (lookup
+                        (identifier)))))))))))
+    (if_tail
+      (elif_tag
+        (test_expression
+          (or_expression
+            (and_expression
+              (not_expression
+                (comparison_expression
+                  (comparison_operand
+                    (filter_expression
+                      (primary_expression
+                        (lookup
+                          (identifier)))))))))))
+      (if_tail
+        (else_tag)
+        (endif_tag)))))
+
+================================================================================
+Django for loop
+================================================================================
+
+{% for item in items %}{{ item }}{% endfor %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_for_block
+    (loop_targets
+      (loop_target))
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier))))
+    (django_interpolation
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)))))))
+
+================================================================================
+Django for loop with empty
+================================================================================
+
+{% for item in items %}{{ item }}{% empty %}No items{% endfor %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_for_block
+    (loop_targets
+      (loop_target))
+    (filter_expression
+      (primary_expression
+        (lookup
+          (identifier))))
+    (django_interpolation
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)))))))
+
+================================================================================
+Django with block
+================================================================================
+
+{% with foo=bar %}{{ foo }}{% endwith %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_with_block
+    (with_assignments
+      (assignment
+        (identifier)
+        (filter_expression
+          (primary_expression
+            (lookup
+              (identifier))))))
+    (django_interpolation
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)))))))
+
+================================================================================
+Django extends tag
+================================================================================
+
+{% extends "base.html" %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_extends_tag
+    (filter_expression
+      (primary_expression
+        (literal
+          (string))))))
+
+================================================================================
+Django block tag
+================================================================================
+
+{% block content %}Hello{% endblock %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_block_block
+    (identifier)))
+
+================================================================================
+Django include tag
+================================================================================
+
+{% include "partial.html" %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_include_tag
+    (filter_expression
+      (primary_expression
+        (literal
+          (string))))))
+
+================================================================================
+Django load tag
+================================================================================
+
+{% load static %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_load_tag
+    (library_item)))
+
+================================================================================
+Django url tag
+================================================================================
+
+{% url "view-name" pk=object.pk %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_url_tag
+    (filter_expression
+      (primary_expression
+        (literal
+          (string))))
+    (named_url_argument
+      (identifier)
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Django csrf token
+================================================================================
+
+{% csrf_token %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_csrf_token_tag))
+
+================================================================================
+Django verbatim block
+================================================================================
+
+{% verbatim %}{{ not parsed }}{% endverbatim %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_verbatim_block))
+
+================================================================================
+Django autoescape block
+================================================================================
+
+{% autoescape off %}{{ html }}{% endautoescape %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_autoescape_block
+    (django_interpolation
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)))))))
+
+================================================================================
+Django filter block
+================================================================================
+
+{% filter upper %}text{% endfilter %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_filter_block
+    (filter_chain
+      (filter_call
+        (filter_name
+          (identifier))))))
+
+================================================================================
+Django spaceless block
+================================================================================
+
+{% spaceless %}<p> text </p>{% endspaceless %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_spaceless_block
+    (element
+      (normal_element
+        (tag_name)
+        (text)
+        (end_tag
+          (tag_name))))))
+
+================================================================================
+Django generic tag
+================================================================================
+
+{% static "file.css" %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_generic_tag
+    (tag_name)
+    (tag_argument
+      (filter_expression
+        (primary_expression
+          (literal
+            (string)))))))
+
+================================================================================
+Django generic block
+================================================================================
+
+{% cache 500 sidebar %}content{% endcache %}
+
+--------------------------------------------------------------------------------
+
+(document
+  (django_generic_block
+    (tag_name)
+    (tag_argument
+      (filter_expression
+        (primary_expression
+          (literal
+            (number)))))
+    (tag_argument
+      (filter_expression
+        (primary_expression
+          (lookup
+            (identifier)))))
+    (tag_name)))

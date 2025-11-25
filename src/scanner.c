@@ -20,6 +20,8 @@ enum TokenType {
     RCDATA_TEXT,
     PLAINTEXT_TEXT,
     COMMENT,
+    // Django externals
+    DJANGO_COMMENT_CONTENT,
 };
 
 typedef enum {
@@ -43,6 +45,12 @@ static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
 
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
 static void pop_tag(Scanner *scanner);
+
+// Check if current position starts a Django delimiter
+static inline bool is_django_delimiter(TSLexer *lexer) {
+    if (lexer->lookahead != '{') return false;
+    return true;  // Will check second char in caller
+}
 
 static unsigned serialize(Scanner *scanner, char *buffer) {
     uint16_t tag_count = scanner->tags.size > UINT16_MAX ? UINT16_MAX : scanner->tags.size;
@@ -278,6 +286,7 @@ static bool scan_comment(TSLexer *lexer) {
     }
 }
 
+// Modified to break on Django delimiters
 static bool scan_raw_text(Scanner *scanner, TSLexer *lexer) {
     if (scanner->tags.size == 0) {
         return false;
@@ -293,24 +302,47 @@ static bool scan_raw_text(Scanner *scanner, TSLexer *lexer) {
     const char *end_delimiter = array_back(&scanner->tags)->type == SCRIPT ? "</SCRIPT" : "</STYLE";
 
     unsigned delimiter_index = 0;
+    bool has_content = false;
+
     while (lexer->lookahead) {
+        // Check for HTML end tag
         if (towupper(lexer->lookahead) == end_delimiter[delimiter_index]) {
             delimiter_index++;
             if (delimiter_index == strlen(end_delimiter)) {
                 break;
             }
             advance(lexer);
-        } else {
+        }
+        // Check for Django delimiters: {{ or {% or {#
+        else if (lexer->lookahead == '{') {
+            lexer->mark_end(lexer);
+            advance(lexer);
+            if (lexer->lookahead == '{' || lexer->lookahead == '%' || lexer->lookahead == '#') {
+                // Stop here, let grammar handle Django
+                break;
+            }
+            // Single brace, continue as content
+            delimiter_index = 0;
+            has_content = true;
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+        else {
             delimiter_index = 0;
             advance(lexer);
+            has_content = true;
             lexer->mark_end(lexer);
         }
     }
 
-    lexer->result_symbol = RAW_TEXT;
-    return true;
+    if (has_content) {
+        lexer->result_symbol = RAW_TEXT;
+        return true;
+    }
+    return false;
 }
 
+// Modified to break on Django delimiters
 static bool scan_rcdata_text(Scanner *scanner, TSLexer *lexer) {
     if (scanner->tags.size == 0) {
         return false;
@@ -331,22 +363,44 @@ static bool scan_rcdata_text(Scanner *scanner, TSLexer *lexer) {
 
     lexer->mark_end(lexer);
     unsigned delimiter_index = 0;
+    bool has_content = false;
+
     while (lexer->lookahead) {
+        // Check for HTML end tag
         if (towupper(lexer->lookahead) == end_delimiter[delimiter_index]) {
             delimiter_index++;
             if (delimiter_index == strlen(end_delimiter)) {
                 break;
             }
             advance(lexer);
-        } else {
+        }
+        // Check for Django delimiters: {{ or {% or {#
+        else if (lexer->lookahead == '{') {
+            lexer->mark_end(lexer);
+            advance(lexer);
+            if (lexer->lookahead == '{' || lexer->lookahead == '%' || lexer->lookahead == '#') {
+                // Stop here, let grammar handle Django
+                break;
+            }
+            // Single brace, continue as content
+            delimiter_index = 0;
+            has_content = true;
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+        else {
             delimiter_index = 0;
             advance(lexer);
+            has_content = true;
             lexer->mark_end(lexer);
         }
     }
 
-    lexer->result_symbol = RCDATA_TEXT;
-    return true;
+    if (has_content) {
+        lexer->result_symbol = RCDATA_TEXT;
+        return true;
+    }
+    return false;
 }
 
 static bool scan_plaintext_text(Scanner *scanner, TSLexer *lexer) {
@@ -363,6 +417,55 @@ static bool scan_plaintext_text(Scanner *scanner, TSLexer *lexer) {
     pop_tag(scanner);
     lexer->result_symbol = PLAINTEXT_TEXT;
     return true;
+}
+
+// Scan Django block comment content until {% endcomment %}
+static bool scan_django_comment_content(TSLexer *lexer) {
+    lexer->mark_end(lexer);
+
+    for (;;) {
+        if (lexer->lookahead == 0) {
+            return false;
+        }
+
+        if (lexer->lookahead == '{') {
+            lexer->mark_end(lexer);
+            advance(lexer);
+            if (lexer->lookahead == '%') {
+                advance(lexer);
+                // Skip whitespace
+                while (lexer->lookahead == ' ' || lexer->lookahead == '\t' ||
+                       lexer->lookahead == '\r' || lexer->lookahead == '\n') {
+                    advance(lexer);
+                }
+                // Check for "endcomment"
+                const char *keyword = "endcomment";
+                const char *p = keyword;
+                while (*p && lexer->lookahead == *p) {
+                    advance(lexer);
+                    p++;
+                }
+                if (*p == '\0') {
+                    // Skip whitespace
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t' ||
+                           lexer->lookahead == '\r' || lexer->lookahead == '\n') {
+                        advance(lexer);
+                    }
+                    if (lexer->lookahead == '%') {
+                        advance(lexer);
+                        if (lexer->lookahead == '}') {
+                            advance(lexer);
+                            lexer->mark_end(lexer);
+                            lexer->result_symbol = DJANGO_COMMENT_CONTENT;
+                            return true;
+                        }
+                    }
+                }
+            }
+        } else {
+            advance(lexer);
+        }
+    }
 }
 
 static void pop_tag(Scanner *scanner) {
@@ -535,6 +638,11 @@ static bool scan_self_closing_tag_delimiter(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+    // Handle Django block comment content first
+    if (valid_symbols[DJANGO_COMMENT_CONTENT]) {
+        return scan_django_comment_content(lexer);
+    }
+
     bool valid_start_tag =
         valid_symbols[HTML_START_TAG_NAME] ||
         valid_symbols[VOID_START_TAG_NAME] ||
@@ -600,27 +708,27 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     return false;
 }
 
-void *tree_sitter_html_external_scanner_create() {
+void *tree_sitter_htmldjango_external_scanner_create() {
     Scanner *scanner = (Scanner *)ts_calloc(1, sizeof(Scanner));
     return scanner;
 }
 
-bool tree_sitter_html_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+bool tree_sitter_htmldjango_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
     return scan(scanner, lexer, valid_symbols);
 }
 
-unsigned tree_sitter_html_external_scanner_serialize(void *payload, char *buffer) {
+unsigned tree_sitter_htmldjango_external_scanner_serialize(void *payload, char *buffer) {
     Scanner *scanner = (Scanner *)payload;
     return serialize(scanner, buffer);
 }
 
-void tree_sitter_html_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
+void tree_sitter_htmldjango_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
     Scanner *scanner = (Scanner *)payload;
     deserialize(scanner, buffer, length);
 }
 
-void tree_sitter_html_external_scanner_destroy(void *payload) {
+void tree_sitter_htmldjango_external_scanner_destroy(void *payload) {
     Scanner *scanner = (Scanner *)payload;
     for (unsigned i = 0; i < scanner->tags.size; i++) {
         tag_free(&scanner->tags.contents[i]);
